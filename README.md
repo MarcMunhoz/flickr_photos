@@ -1,23 +1,35 @@
 # Flickr Photos
 
-## Project setup
+## What's need
+
+- [Docker](https://www.docker.com/get-started)
+- [Docker compose](https://docs.docker.com/compose/install)
+
+## Project setup | It Compiles and hot-reloads for development
 
 ```
-yarn
+docker-compose up -d
 ```
 
-### Compiles and hot-reloads for development
+## Compiles and minifies for production
+
+\* **Inside container**
 
 ```
-yarn serve
-```
+docker container exec -it flickr-gallery_ctn sh
 
-### Compiles and minifies for production
-
-```
 yarn build
 ```
 
-### Customize configuration
+## Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Internal used
+
+- Bootstrap
+- [Flickr API](https://www.flickr.com/services/api)
+- Less CSS
+- NodeJS
+- Vue 3
