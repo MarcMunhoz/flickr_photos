@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  app:
+    build: .
+    image: flickr-gallery_img
+    volumes:
+      - .:/app
+    working_dir: /app
+    container_name: "flickr-gallery_ctn"
+    hostname: "app"
+    ports:
+      - 2469:2469
+    entrypoint: ["yarn", "serve"]
+    # entrypoint: ["sh", "-c", "sleep 2073600"] debug mode
