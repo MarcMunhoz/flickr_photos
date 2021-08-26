@@ -105,6 +105,7 @@ ul {
 
   li {
     display: inline-block;
+    width: 473px;
   }
 }
 
@@ -113,7 +114,7 @@ ul {
     height: 305px;
     object-fit: cover;
     transition: transform 0.5s ease;
-    width: 473px;
+    width: 100%;
 
     &:hover {
       transform: scale(1.1);
