@@ -1,6 +1,6 @@
 <template>
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
-    <h1 class="w-100">My Flick photos - Page {{ nextPage }} of {{ totalPages }}</h1>
+    <h1 class="w-100" v-if="photos_owner">Public photos by {{ photos_owner }} on Flickr - Page {{ nextPage }} of {{ totalPages }}</h1>
     <p class="w-100"><strong>* Click on photo to open original</strong></p>
     <div class="spinner w-100">
       <div class="spinner-border" role="status">
@@ -38,6 +38,7 @@ export default {
     return {
       photos: [],
       user_id,
+      photos_owner: "",
       totalPages: 1,
       nextPage,
       url: "",
@@ -47,7 +48,7 @@ export default {
   },
   methods: {
     pageMount() {
-      this.url = `https://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_key=${api_key}&user_id=${user_id}&page=${this.nextPage}&extras=url_z,url_o,tags,date_taken&per_page=12&format=json&nojsoncallback=1`;
+      this.url = `https://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_key=${api_key}&user_id=${user_id}&page=${this.nextPage}&extras=url_z,url_o,tags,date_taken,owner_name&per_page=12&format=json&nojsoncallback=1`;
       this.spinner.classList.remove("visually-hidden");
 
       fetch(this.url, { method: "get" })
@@ -56,6 +57,7 @@ export default {
             this.spinner.classList.add("visually-hidden");
             const rawData = data.photos;
             this.totalPages = rawData.pages;
+            this.photos_owner = rawData.photo[0].ownername;
 
             for (let index = 0; index < rawData.photo.length; index++) {
               this.photos.push(rawData.photo[index]);
