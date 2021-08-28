@@ -1,11 +1,13 @@
 <template>
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
-    <h1 class="w-100" v-if="photos_owner">Public photos by {{ photos_owner }} on Flickr - Page {{ nextPage }} of {{ totalPages }}</h1>
-    <p class="w-100"><strong>* Click on photo to open original</strong></p>
-    <div class="spinner w-100">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
+    <FlickrUser />
+    <div class="w-100" v-if="photos_owner">
+      <h1>Public photos by {{ photos_owner }} on Flickr - Page {{ nextPage }} of {{ totalPages }}</h1>
+      <p class="fw-bold w-100">* Click on photo to open original</p>
+    </div>
+    <div class="spinner text-info w-100">
+      <div class="spinner-border" role="status" />
+      <p class="fw-bold">Loading... Please wait.</p>
     </div>
     <ul class="d-flex flex-row flex-wrap align-items-end justify-content-start gap-1">
       <li v-for="photo in photos" :key="photo.id">
@@ -13,23 +15,20 @@
         <a :href="photo.url_o" target="_photo" @mouseover="(isActive = true), bordered($event.target)" @mouseleave="(isActive = false), bordered($event.target)">
           <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-3 border-primary mw-100" />
         </a>
-        <cite v-if="photo.tags.length > 0" class="d-block"><strong>Tags:</strong> {{ photo.tags }}</cite>
-        <cite class="d-block"><strong>Date</strong>: {{ theDate(photo.datetaken) }}</cite>
+        <cite v-if="photo.tags.length > 0" class="d-block"><span class="fw-bold">Tags:</span> {{ photo.tags }}</cite>
+        <cite class="d-block"><span class="fw-bold">Date</span>: {{ theDate(photo.datetaken) }}</cite>
       </li>
     </ul>
-    <button v-if="nextPage > 1 && photos.length > 0" @click="mountExec('down')" class="btn btn-primary">
-      <strong>Page [ {{ nextPage - 1 }} ]</strong>
-    </button>
-    <button v-if="nextPage < totalPages && photos.length > 0" @click="mountExec('up')" class="btn btn-primary">
-      <strong>Page [ {{ nextPage + 1 }} ]</strong>
-    </button>
+    <button v-if="nextPage > 1 && photos.length > 0" @click="mountExec('down')" class="btn btn-primary fw-bold">Page [ {{ nextPage - 1 }} ]</button>
+    <button v-if="nextPage < totalPages && photos.length > 0" @click="mountExec('up')" class="btn btn-primary fw-bold">Page [ {{ nextPage + 1 }} ]</button>
   </div>
 </template>
 
 <script>
-import { nextTick } from "@vue/runtime-core";
+import FlickrUser from "@/components/FlickrUser.vue";
 const api_key = process.env.API_KEY;
 const user_id = process.env.USER_ID;
+const url = "https://api.flickr.com/services/rest";
 const nextPage = 1;
 
 export default {
@@ -41,10 +40,13 @@ export default {
       photos_owner: "",
       totalPages: 1,
       nextPage,
-      url: "",
-      spinner: "",
+      url: String,
+      spinner: String,
       isActive: false,
     };
+  },
+  components: {
+    FlickrUser,
   },
   methods: {
     pageMount() {
@@ -93,7 +95,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
 h3 {
   margin: 40px 0 0;
