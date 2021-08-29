@@ -1,11 +1,16 @@
 <template>
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
-    <FlickrUser />
-    <div class="w-100" v-if="photos_owner">
-      <h1>Public photos by {{ photos_owner }} on Flickr - Page {{ nextPage }} of {{ totalPages }}</h1>
+    <FlickrUser @userID="emittedUserId" />
+
+    <p class="text-danger">{{ error }}</p>
+
+    <div class="w-100" v-if="photos.length > 0">
+      <h1>
+        Public photos by <span class="text-success fw-bolder">{{ photos_owner }}</span> on Flickr - Page {{ nextPage }} of {{ totalPages }}
+      </h1>
       <p class="fw-bold w-100">* Click on photo to open original</p>
     </div>
-    <div class="spinner text-info w-100">
+    <div class="spinner text-info w-100 visually-hidden">
       <div class="spinner-border" role="status" />
       <p class="fw-bold">Loading... Please wait.</p>
     </div>
@@ -27,8 +32,6 @@
 <script>
 import FlickrUser from "@/components/FlickrUser.vue";
 const api_key = process.env.API_KEY;
-const user_id = process.env.USER_ID;
-const url = "https://api.flickr.com/services/rest";
 const nextPage = 1;
 
 export default {
@@ -36,11 +39,12 @@ export default {
   data() {
     return {
       photos: [],
-      user_id,
+      user_id: String,
       photos_owner: "",
       totalPages: 1,
       nextPage,
       url: String,
+      error: "",
       spinner: String,
       isActive: false,
     };
@@ -49,25 +53,37 @@ export default {
     FlickrUser,
   },
   methods: {
+    emittedUserId(userId) {
+      this.user_id = userId;
+      return this.pageMount();
+    },
     pageMount() {
-      this.url = `https://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_key=${api_key}&user_id=${user_id}&page=${this.nextPage}&extras=url_z,url_o,tags,date_taken,owner_name&per_page=12&format=json&nojsoncallback=1`;
+      this.url = `https://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_key=${api_key}&user_id=${this.user_id}&page=${this.nextPage}&extras=url_z,url_o,tags,date_taken,owner_name&per_page=12&format=json&nojsoncallback=1`;
       this.spinner.classList.remove("visually-hidden");
+      this.photos = [];
 
       fetch(this.url, { method: "get" })
         .then((resp) => {
-          resp.json().then((data) => {
-            this.spinner.classList.add("visually-hidden");
-            const rawData = data.photos;
-            this.totalPages = rawData.pages;
-            this.photos_owner = rawData.photo[0].ownername;
+          if (resp.ok) {
+            return resp.json();
+          } else {
+            throw new Error("Something went wrong");
+          }
+        })
+        .then((respJson) => {
+          this.spinner.classList.add("visually-hidden");
+          const rawData = respJson.photos;
+          this.totalPages = rawData.pages;
+          this.photos_owner = rawData.photo[0].ownername;
 
-            for (let index = 0; index < rawData.photo.length; index++) {
-              this.photos.push(rawData.photo[index]);
-            }
-          });
+          for (let index = 0; index < rawData.photo.length; index++) {
+            this.photos.push(rawData.photo[index]);
+          }
         })
         .catch((err) => {
-          console.error("Failed retrieving information", err);
+          this.photos = "";
+
+          return (this.error = err);
         });
     },
     mountExec(upDown) {
@@ -90,7 +106,6 @@ export default {
   },
   mounted() {
     this.spinner = document.querySelector(".flickr .spinner");
-    this.pageMount();
   },
 };
 </script>

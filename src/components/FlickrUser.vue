@@ -1,11 +1,10 @@
 <template>
-  <div>
-    <input type="text" id="" size="20" v-model="user_name" placeholder="Flickr user name" />
+  <div class="w-100">
+    <input type="text" size="20" v-model="user_name" @keyup.enter="urlMount()" class="border border-2 border-info text-info me-2" placeholder="Flickr user name" />
 
-    <button type="submit" value="Submit" @click="urlMount()">Submit</button>
+    <button type="submit" value="Submit" @click="urlMount()" class="btn btn-sm btn-danger">Submit</button>
 
     <p class="text-danger">{{ error }}</p>
-    <p class="text-info" v-if="user_id.length > 0">{{ user_id }}</p>
   </div>
 </template>
 
@@ -45,6 +44,8 @@ export default {
         .then((respJson) => {
           this.error = "";
           this.user_id = respJson.user.id;
+
+          return this.$emit("userID", this.user_id);
         })
         .catch((err) => {
           this.user_name = "";
@@ -60,3 +61,9 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="less">
+input {
+  outline: 0;
+}
+</style>
