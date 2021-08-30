@@ -21,11 +21,19 @@ export default {
       url: String,
     };
   },
+  props: {
+    apiUrl: {
+      type: Object,
+    },
+    url_params: {
+      type: Array,
+    },
+  },
   methods: {
     urlMount() {
       if (this.user_name) {
         this.error = "";
-        this.url = `https://api.flickr.com/services/rest/?method=flickr.people.findByUsername&api_key=${api_key}&format=json&nojsoncallback=1&username=${this.user_name}`;
+        this.url = `${this.apiUrl[0].url}${this.apiUrl[0].endpoint}?method=${this.apiUrl[0].method[1]}&api_key=${api_key}&${this.url_params[2]}=${this.apiUrl[0].params[0].format}&${this.url_params[3]}=${this.apiUrl[0].params[0].nojsoncallback}&username=${this.user_name}`;
 
         return this.getUserID(this.url);
       } else {

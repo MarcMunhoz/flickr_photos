@@ -1,6 +1,6 @@
 <template>
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
-    <FlickrUser @userID="emittedUserId" />
+    <FlickrUser @userID="emittedUserId" :apiUrl="apiUrl" :url_params="url_params" />
 
     <p class="text-danger">{{ error }}</p>
 
@@ -31,6 +31,7 @@
 
 <script>
 import FlickrUser from "@/components/FlickrUser.vue";
+import apiUrl from "@/utils/apiUrl.js";
 const api_key = process.env.API_KEY;
 const nextPage = 1;
 
@@ -43,7 +44,9 @@ export default {
       photos_owner: "",
       totalPages: 1,
       nextPage,
+      apiUrl,
       url: String,
+      url_params: Array,
       error: "",
       spinner: String,
       isActive: false,
@@ -52,13 +55,16 @@ export default {
   components: {
     FlickrUser,
   },
+  created() {
+    this.url_params = Object.keys(this.apiUrl[0].params[0]);
+  },
   methods: {
     emittedUserId(userId) {
       this.user_id = userId;
       return this.pageMount();
     },
     pageMount() {
-      this.url = `https://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_key=${api_key}&user_id=${this.user_id}&page=${this.nextPage}&extras=url_z,url_o,tags,date_taken,owner_name&per_page=12&format=json&nojsoncallback=1`;
+      this.url = `${this.apiUrl[0].url}${this.apiUrl[0].endpoint}?method=${this.apiUrl[0].method[0]}&api_key=${api_key}&user_id=${this.user_id}&page=${this.nextPage}&${this.url_params[0]}=${this.apiUrl[0].params[0].extras}&${this.url_params[1]}=${this.apiUrl[0].params[0].per_page}&${this.url_params[2]}=${this.apiUrl[0].params[0].format}&${this.url_params[3]}=${this.apiUrl[0].params[0].nojsoncallback}`;
       this.spinner.classList.remove("visually-hidden");
       this.photos = [];
 
