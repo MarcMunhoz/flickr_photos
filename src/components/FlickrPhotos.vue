@@ -2,7 +2,7 @@
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
     <FlickrUser @userID="emittedUserId" :apiUrl="apiUrl" :url_params="url_params" />
 
-    <p class="text-danger">{{ error }}</p>
+    <p class="text-danger w-100">{{ error }}</p>
 
     <div class="w-100" v-if="photos.length > 0">
       <h1>
@@ -17,7 +17,7 @@
     <ul class="d-flex flex-row flex-wrap align-items-end justify-content-start gap-1">
       <li v-for="photo in photos" :key="photo.id">
         <h3 class="mb-2">{{ photo.title }}</h3>
-        <a :href="photo.url_o" target="_photo" @mouseover="(isActive = true), bordered($event.target)" @mouseleave="(isActive = false), bordered($event.target)">
+        <a :href="photo.url_o" target="_photo" @mouseover="(isActive = true), bordered($event.target, photo.url_o)" @mouseleave="(isActive = false), bordered($event.target, photo.url_o)">
           <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-3 border-primary mw-100" />
         </a>
         <cite v-if="photo.tags.length > 0" class="d-block"><span class="fw-bold">Tags:</span> {{ photo.tags }}</cite>
@@ -77,6 +77,7 @@ export default {
           }
         })
         .then((respJson) => {
+          this.error = "";
           this.spinner.classList.add("visually-hidden");
           const rawData = respJson.photos;
           this.totalPages = rawData.pages;
@@ -89,7 +90,11 @@ export default {
         .catch((err) => {
           this.photos = "";
 
-          return (this.error = err);
+          if (err == "TypeError: Cannot read property 'ownername' of undefined") {
+            return (this.error = "Invalid username. Please, check it out.");
+          } else {
+            return (this.error = err);
+          }
         });
     },
     mountExec(upDown) {
@@ -97,10 +102,10 @@ export default {
       upDown === "down" ? (this.nextPage = this.nextPage - 1) : (this.nextPage = this.nextPage + 1);
       return this.pageMount();
     },
-    bordered(el) {
-      if (this.isActive === true) {
+    bordered(el, link) {
+      if (this.isActive === true && typeof link !== "undefined") {
         el.classList.add("border");
-      } else {
+      } else if (typeof link !== "undefined") {
         el.firstChild.classList.remove("border");
       }
     },
