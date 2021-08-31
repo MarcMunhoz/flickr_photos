@@ -1,6 +1,8 @@
 [[headers]]
   for = "/*"
   [headers.values]
+    Content-Security-Policy= "default-src https:"
+    Permissions-Policy = "geolocation=(self 'https://flickr-gallery.marcelomunhoz.com'), microphone=()"
     Referrer-Policy = "no-referrer-when-downgrade"
     Strict-Transport-Security = "max-age=15552000; includeSubDomains; preload"
     X-Content-Type-Options = "nosniff"
