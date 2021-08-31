@@ -1,6 +1,6 @@
 <template>
   <div class="w-100">
-    <input type="text" size="20" v-model="user_name" @keyup.enter="urlMount()" class="border border-2 border-info text-info me-2" placeholder="Flickr user name" />
+    <input type="text" size="20" v-model="user_name" @keyup.enter="urlMount()" class="border border-2 border-info text-info p-1 me-2" placeholder="Flickr user name" autofocus />
 
     <button type="submit" value="Submit" @click="urlMount()" class="btn btn-sm btn-danger">Submit</button>
 

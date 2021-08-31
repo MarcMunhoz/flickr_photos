@@ -9,8 +9,15 @@ export default {
 </script>
 
 <style lang="less">
+@fonts-folder: "~@/assets/fonts/";
+
+@font-face {
+  font-family: "Kuaile";
+  src: url("@{fonts-folder}zcoolkuaile-regular-webfont.woff") format("woff"), url("@{fonts-folder}zcoolkuaile-regular-webfont.woff2") format("woff2");
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: Kuaile;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

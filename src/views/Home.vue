@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <router-link to="/about" class="link-secondary">About</router-link>
+    <!-- <router-link to="/about" class="link-secondary">About</router-link> -->
     <flickrPhotos />
   </div>
 </template>
