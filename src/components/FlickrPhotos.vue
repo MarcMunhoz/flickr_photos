@@ -128,6 +128,7 @@ export default {
 <style scoped lang="less">
 @color-flickr-blue: #0462dc;
 @color-flickr-pink: #ff0084;
+@sm-screens: ~"(max-width: 768px)";
 
 h3 {
   margin: 40px 0 0;
@@ -140,6 +141,14 @@ ul {
   li {
     display: inline-block;
     width: 473px;
+  }
+
+  @media @sm-screens {
+    width: 100%;
+
+    li {
+      width: 100%;
+    }
   }
 }
 
@@ -157,6 +166,11 @@ ul {
   background: linear-gradient(to right, white, white, @color-flickr-blue, @color-flickr-pink, white, white);
   background-clip: text;
   -webkit-text-fill-color: transparent;
+
+  @media @sm-screens {
+    background: linear-gradient(to right, white, @color-flickr-blue, @color-flickr-pink, white);
+    background-clip: text;
+  }
 }
 
 .flickr {
@@ -174,6 +188,12 @@ ul {
   .spinner-border {
     height: 10rem;
     width: 10rem;
+  }
+
+  @media @sm-screens {
+    &.w-75 {
+      width: 100% !important;
+    }
   }
 }
 </style>
