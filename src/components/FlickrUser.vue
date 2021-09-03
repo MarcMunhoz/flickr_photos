@@ -22,6 +22,7 @@ export default {
     };
   },
   props: {
+    // Importing from FickrPhotos component
     apiUrl: {
       type: Object,
     },
@@ -32,6 +33,7 @@ export default {
   methods: {
     urlMount() {
       if (this.user_name) {
+        // Cleaning up old input error message and defining the Flickr user to search it
         this.error = "";
         this.url = `${this.apiUrl[0].url}${this.apiUrl[0].endpoint}?method=${this.apiUrl[0].method[1]}&api_key=${api_key}&${this.url_params[2]}=${this.apiUrl[0].params[0].format}&${this.url_params[3]}=${this.apiUrl[0].params[0].nojsoncallback}&username=${this.user_name}`;
 
@@ -43,6 +45,7 @@ export default {
     getUserID(theUrl) {
       fetch(theUrl, { method: "get" })
         .then((resp) => {
+          // Getting the response from the Flickr API
           if (resp.ok) {
             return resp.json();
           } else {
@@ -50,15 +53,19 @@ export default {
           }
         })
         .then((respJson) => {
+          // If API returns data, it clears old fetch error messages and gets the user ID
           this.error = "";
           this.user_id = respJson.user.id;
 
+          // Emits the user ID to the FlickrPhotos component
           return this.$emit("userID", this.user_id);
         })
         .catch((err) => {
+          // Cleaning up input field and old user iD from app
           this.user_name = "";
           this.user_id = "";
 
+          // Errors handling
           if (err == "TypeError: Failed to fetch") {
             return (this.error = "Connection error. Try it later.");
           } else {

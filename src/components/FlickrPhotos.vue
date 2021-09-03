@@ -60,19 +60,23 @@ export default {
     FlickrUser,
   },
   created() {
+    // Getting the API params from apiUrl.js
     this.url_params = Object.keys(this.apiUrl[0].params[0]);
   },
   methods: {
     emittedUserId(userId) {
+      // Getting the user ID from the FlickrUser component by emit
       this.user_id = userId;
       return this.pageMount();
     },
     pageMount() {
+      // Using the data from apiUrl.js to compose the API url
       this.url = `${this.apiUrl[0].url}${this.apiUrl[0].endpoint}?method=${this.apiUrl[0].method[0]}&api_key=${api_key}&user_id=${this.user_id}&page=${this.nextPage}&${this.url_params[0]}=${this.apiUrl[0].params[0].extras}&${this.url_params[1]}=${this.apiUrl[0].params[0].per_page}&${this.url_params[2]}=${this.apiUrl[0].params[0].format}&${this.url_params[3]}=${this.apiUrl[0].params[0].nojsoncallback}`;
       this.spinner.classList.remove("visually-hidden");
-      this.photos = [];
+      this.photos = []; // Cleaning up the old gallery data
 
       fetch(this.url, { method: "get" })
+        // Getting the response from the Flickr API
         .then((resp) => {
           if (resp.ok) {
             return resp.json();
@@ -81,6 +85,7 @@ export default {
           }
         })
         .then((respJson) => {
+          // If API returns data, it clears old fetch error messages and gets the gallery data
           this.error = "";
           this.spinner.classList.add("visually-hidden");
           const rawData = respJson.photos;
@@ -88,12 +93,14 @@ export default {
           this.photos_owner = rawData.photo[0].ownername;
 
           for (let index = 0; index < rawData.photo.length; index++) {
-            this.photos.push(rawData.photo[index]);
+            this.photos.push(rawData.photo[index]); // It populates the array with all photos comin' from API data
           }
         })
         .catch((err) => {
+          // Cleaning up the old gallery data from app
           this.photos = "";
 
+          // Errors handling
           if (err == "TypeError: Cannot read property 'ownername' of undefined") {
             return (this.error = "Invalid username. Please, check it out.");
           } else {
@@ -102,11 +109,13 @@ export default {
         });
     },
     mountExec(upDown) {
+      // Cleaning up the old gallery data from app and executing next/prev page action
       this.photos = [];
       upDown === "down" ? (this.nextPage = this.nextPage - 1) : (this.nextPage = this.nextPage + 1);
       return this.pageMount();
     },
     bordered(el, link) {
+      // Mouseover effect if link to the original size exists
       if (this.isActive === true && typeof link !== "undefined") {
         el.classList.add("border");
       } else if (typeof link !== "undefined") {
@@ -114,6 +123,7 @@ export default {
       }
     },
     theDate(dte) {
+      // It gets the string "photo taken" from data and convert it into valid date
       const date = new Date(dte);
       const opt = { year: "numeric", month: "long", day: "numeric" };
       return date.toLocaleString("en-US", opt);
