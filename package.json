@@ -21,9 +21,16 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "less": "^3.0.4",
-    "less-loader": "^5.0.0"
+    "less-loader": "^5.0.0",
+    "cache-base": "~4.0.0",
+    "union-value": "~2.0.1",
+    "css-select": "~4.1.3"
   },
   "resolutions": {
-    "glob-parent": "^5.1.2"
+    "glob-parent": "^5.1.2",
+    "cache-base": "~4.0.0",
+    "union-value": "~2.0.1",
+    "css-select": "~4.1.3",
+    "set-value": "^4.0.1"
   }
 }
