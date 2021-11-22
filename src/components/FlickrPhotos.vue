@@ -24,7 +24,7 @@
         <a :href="photo.url_o" target="_photo" @mouseover="(isActive = true), bordered($event.target, photo.url_o)" @mouseleave="(isActive = false), bordered($event.target, photo.url_o)">
           <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-3 border-primary mw-100" />
         </a>
-        <cite v-if="photo.tags.length > 0" class="d-block px-2 simple-font fst-normal"><span class="fw-bold">Tags:</span> {{ photo.tags }}</cite>
+        <cite v-if="photo.tags.length > 0" class="d-block px-2 simple-font fst-normal text-ellipsis"><span class="fw-bold">Tags:</span> {{ photo.tags }}</cite>
         <cite class="d-block px-2 simple-font fst-normal"><span class="fw-bold">Date</span>: {{ theDate(photo.datetaken) }}</cite>
       </li>
     </ul>
@@ -150,6 +150,7 @@ ul {
 
   li {
     display: inline-block;
+    min-height: 436px;
     width: 473px;
   }
 
@@ -157,6 +158,7 @@ ul {
     width: 100%;
 
     li {
+      min-height: unset;
       width: 100%;
     }
   }
