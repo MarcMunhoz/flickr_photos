@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:16-alpine
 
 LABEL author="Marcelo Munhoz <me@marcelomunhoz.com>" \
   description="WebApp who displays public photos from a Flickr account" \
