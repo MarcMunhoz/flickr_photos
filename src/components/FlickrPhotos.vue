@@ -36,7 +36,7 @@
 <script>
 import FlickrUser from "@/components/FlickrUser.vue";
 import apiUrl from "@/utils/apiUrl.js";
-const api_key = process.env.API_KEY;
+const api_key = import.meta.env.VITE_API_KEY;
 const nextPage = 1;
 
 export default {
@@ -177,6 +177,7 @@ ul {
 .gradient-flickr {
   background: linear-gradient(to right, white, white, @color-flickr-blue, @color-flickr-pink, white, white);
   background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
   @media @sm-screens {

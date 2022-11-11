@@ -9,7 +9,7 @@ export default {
 </script>
 
 <style lang="less">
-@fonts-folder: "~@/assets/fonts/";
+@fonts-folder: "@/assets/fonts/";
 
 @font-face {
   font-family: "Kuaile";
