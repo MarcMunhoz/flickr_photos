@@ -1,42 +1,33 @@
 {
   "name": "flickr_photos",
-  "version": "0.2.0",
   "private": true,
+  "version": "0.3.0",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@popperjs/core": "^2.9.3",
     "bootstrap": "^5.0.0-beta3",
-    "core-js": "^3.6.5",
-    "dotenv": "^10.0.0",
-    "vue": "^3.0.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.0.1",
+    "follow-redirects": "^1.14.7",
+    "less": "^4.1.1",
+    "less-loader": "^10.0.0",
+    "terser": "^5.14.2",
+    "vue": "^3.2.41",
     "vue-router": "^4.0.0-0",
     "vue3-lazyload": "^0.2.2-beta"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~5.0.6",
-    "@vue/cli-plugin-router": "~4.5.15",
-    "@vue/cli-service": "~4.5.15",
-    "@vue/compiler-sfc": "^3.0.0",
+    "@popperjs/core": "^2.11.6",
+    "@vitejs/plugin-vue": "^3.2.0",
     "cache-base": "~4.0.0",
     "css-select": "~4.1.3",
-    "less": "^3.0.4",
-    "less-loader": "^5.0.0",
-    "union-value": "~2.0.1"
+    "union-value": "~2.0.1",
+    "vite": "^3.2.3"
   },
   "resolutions": {
-    "glob-parent": "^5.1.2",
-    "cache-base": "~4.0.0",
-    "union-value": "~2.0.1",
-    "css-select": "~4.1.3",
-    "set-value": "^4.0.1",
-    "ansi-regex": "^5.0.1",
-    "json-schema": "^0.4.0",
-    "follow-redirects": "^1.14.7",
-    "node-forge": "^1.0.0",
-    "ejs": "~3.1.7",
-    "terser": "^5.14.2"
+    "set-value": "^4.0.1"
   }
 }

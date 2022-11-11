@@ -5,6 +5,4 @@ import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import VueLazyLoad from "vue3-lazyload";
 
-createApp(App)
-  .use(router, VueLazyLoad)
-  .mount("#app");
+createApp(App).use(router, VueLazyLoad).mount("#app");

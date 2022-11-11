@@ -9,7 +9,7 @@
 </template>
 
 <script>
-const api_key = process.env.API_KEY;
+const api_key = import.meta.env.VITE_API_KEY;
 
 export default {
   name: "FlickrUser",
