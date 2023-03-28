@@ -1,6 +1,7 @@
 <template>
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
     <h1 class="w-100 text-center text-uppercase mb-4 gradient-flickr">Public Flickr Gallery</h1>
+    <cite>Search any Flickr user's photos by username</cite>
     <FlickrUser @userID="emittedUserId" :apiUrl="apiUrl" :url_params="url_params" />
 
     <p class="text-danger w-100">{{ error }}</p>
@@ -20,7 +21,8 @@
     </div>
     <ul class="d-flex flex-row flex-wrap align-items-end justify-content-start gap-1">
       <li v-for="photo in photos" :key="photo.id">
-        <h3 class="mb-2 text-ellipsis">{{ photo.title }}</h3>
+        <h3 v-if="photo.title" class="mb-2 text-ellipsis">{{ photo.title }}</h3>
+        <h3 v-else class="mb-2 fs-4 text-decoration-line-through text-muted">Untitled</h3>
         <a :href="photo.url_o" target="_photo" @mouseover="(isActive = true), bordered($event.target, photo.url_o)" @mouseleave="(isActive = false), bordered($event.target, photo.url_o)">
           <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-3 border-primary mw-100" />
         </a>
@@ -142,6 +144,11 @@ export default {
 
 h3 {
   margin: 40px 0 0;
+  min-height: 36px;
+
+  @media @sm-screens {
+    min-height: 28px;
+  }
 }
 
 ul {
