@@ -19,7 +19,7 @@
       <div class="spinner-border" role="status" />
       <p class="fw-bold">Loading... Please wait.</p>
     </div>
-    <ul class="d-flex flex-row flex-wrap align-items-end justify-content-start gap-1">
+    <ul class="d-flex flex-row flex-wrap align-items-end justify-content-center gap-1">
       <li v-for="photo in photos" :key="photo.id">
         <h3 v-if="photo.title" class="mb-2 text-ellipsis">{{ photo.title }}</h3>
         <h3 v-else class="mb-2 fs-4 text-decoration-line-through text-muted">Untitled</h3>
