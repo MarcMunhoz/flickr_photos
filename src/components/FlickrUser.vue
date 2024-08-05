@@ -9,18 +9,11 @@
 </template>
 
 <script>
+import { defineComponent, defineEmits, ref } from "vue";
 const api_key = import.meta.env.VITE_API_KEY;
 
-export default {
+export default defineComponent({
   name: "FlickrUser",
-  data() {
-    return {
-      user_name: "",
-      user_id: [],
-      error: "",
-      url: String,
-    };
-  },
   props: {
     // Importing from FickrPhotos component
     apiUrl: {
@@ -30,51 +23,77 @@ export default {
       type: Array,
     },
   },
-  methods: {
-    urlMount() {
-      if (this.user_name) {
-        // Cleaning up old input error message and defining the Flickr user to search it
-        this.error = "";
-        this.url = `${this.apiUrl[0].url}${this.apiUrl[0].endpoint}?method=${this.apiUrl[0].method[1]}&api_key=${api_key}&${this.url_params[2]}=${this.apiUrl[0].params[0].format}&${this.url_params[3]}=${this.apiUrl[0].params[0].nojsoncallback}&username=${this.user_name}`;
+  setup(props) {
+    // App variables
+    const user_name = ref(String);
+    const user_id = ref(Array);
+    const error = ref(String);
+    const url = ref(URL);
 
-        return this.getUserID(this.url);
+    // Default values
+    user_name.value = "";
+    user_id.value = [];
+    error.value = "";
+
+    // Methods
+    const urlMount = () => {
+      if (user_name.value.length) {
+        error.value = "";
+        url.value = `${props.apiUrl[0].url}${props.apiUrl[0].endpoint}?method=${props.apiUrl[0].method[1]}&api_key=${api_key}&${props.url_params[2]}=${props.apiUrl[0].params[0].format}&${props.url_params[3]}=${props.apiUrl[0].params[0].nojsoncallback}&username=${user_name.value}`;
+
+        return getUserID(url.value);
       } else {
-        this.error = "Please type a username.";
+        error.value = "Please type a username.";
       }
-    },
-    getUserID(theUrl) {
+    };
+
+    const getUserID = (theUrl) => {
       fetch(theUrl, { method: "get" })
-        .then((resp) => {
+        .then((res) => {
           // Getting the response from the Flickr API
-          if (resp.ok) {
-            return resp.json();
+          if (res.ok) {
+            return res.json();
           } else {
             throw new Error("Something went wrong");
           }
         })
-        .then((respJson) => {
+        .then((resJson) => {
           // If API returns data, it clears old fetch error messages and gets the user ID
-          this.error = "";
-          this.user_id = respJson.user.id;
+          error.value = "";
+          user_id.value = resJson.user.id;
 
           // Emits the user ID to the FlickrPhotos component
-          return this.$emit("userID", this.user_id);
+          const emitter = defineEmits(["userID"]);
+          const emitUserId = () => {
+            emitter("userID"), user_id.value;
+          };
+
+          return emitUserId;
         })
         .catch((err) => {
           // Cleaning up input field and old user iD from app
-          this.user_name = "";
-          this.user_id = "";
+          user_name.value = "";
+          user_id.value = "";
+
+          console.log(err);
 
           // Errors handling
           if (err == "TypeError: Failed to fetch") {
-            return (this.error = "Connection error. Try it later.");
+            return (error.value = "Connection error. Try it later.");
           } else {
-            return (this.error = "User not found. Please, check it out.");
+            return (error.value = "User not found. Please, check it out.");
           }
         });
-    },
+    };
+
+    // Exposing data to template
+    return {
+      user_name,
+      error,
+      urlMount,
+    };
   },
-};
+});
 </script>
 
 <style scoped lang="less">
