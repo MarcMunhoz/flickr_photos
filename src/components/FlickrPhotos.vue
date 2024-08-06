@@ -44,13 +44,15 @@ const nextPage = 1;
 
 export default defineComponent({
   name: "FlickrPhotos",
+  components: {
+    FlickrUser,
+  },
   setup() {
     const photos = ref(Array);
     const user_id = ref(String);
     const photos_owner = ref(String);
     const totalPages = ref(Number);
     const nextPage = ref(null);
-    const apiUrl = ref(null);
     const url = ref(URL);
     const url_params = ref(Array);
     const error = ref(String);
@@ -63,7 +65,7 @@ export default defineComponent({
     error.value = "";
     isActive.value = false;
 
-    url_params.value = Object.keys(apiUrl.value[0].params[0]);
+    url_params.value = Object.keys(apiUrl[0].params[0]);
 
     const emittedUserId = (userId) => {
       user_id.value = userId;
@@ -71,19 +73,81 @@ export default defineComponent({
     };
 
     const pageMount = () => {
-      url.value = `${apiUrl[0].value.url}${apiUrl.value[0].endpoint}?method=${apiUrl.value[0].method[0]}&api_key=${api_key}&user_id=${user_id.value}&page=${nextPage.value}&${url_params.value[0]}=${apiUrl.value[0].params[0].extras}&${url_params.value[1]}=${apiUrl.value[0].params[0].per_page}&${url_params.value[2]}=${apiUrl.value[0].params[0].format}&${url_params.value[3]}=${apiUrl.value[0].params[0].nojsoncallback}`;
+      url.value = `${apiUrl[0].url}${apiUrl[0].endpoint}?method=${apiUrl[0].method[0]}&api_key=${api_key}&user_id=${user_id.value}&page=${nextPage.value}&${url_params.value[0]}=${apiUrl[0].params[0].extras}&${url_params.value[1]}=${apiUrl[0].params[0].per_page}&${url_params.value[2]}=${apiUrl[0].params[0].format}&${url_params.value[3]}=${apiUrl[0].params[0].nojsoncallback}`;
       spinner.value.classList.remove("visually-hidden");
       photos.value = [];
 
-      // PAREI AQUI. TERMINAR A CONVERSÃO DA FUNÇÃO
+      fetch(url.value, { method: "get" })
+        .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else {
+          throw new Error("Something went wrong");          
+        }
+        })
+        .then(resJson => {
+          error.value = ""
+          spinner.value.classList.add("visually-hidden")
+          const rawData = resJson.photos
+          totalPages.value = rawData.pages
+          photos_owner.value = rawData.photo[0].ownername
+
+          for (let index = 0; index < rawData.photo.length; index++) {
+            photos.value.push(rawData.photo[index]); // It populates the array with all photos comin' from API data
+          }
+        })
+      .catch((err) => {
+          // Cleaning up the old gallery data from app
+          photos.value = "";
+
+          // Errors handling
+          if (err == "TypeError: Cannot read property 'ownername' of undefined") {
+            return (error.value = "Invalid username. Please, check it out.");
+          } else {
+            return (error.value = err);
+          }
+        });
     };
+
+    const mountExec = (upDown) => {
+      // Cleaning up the old gallery data from app and executing next/prev page action
+      photos.value = [];
+      upDown === "down" ? (nextPage.value = nextPage.value - 1) : (nextPage.value = nextPage.value + 1);
+      pageMount();
+    }
+
+    const bordered = (el, link) => {
+      // Mouseover effect if link to the original size exists
+      if (isActive.value === true && typeof link !== "undefined") {
+        el.classList.add("border");
+      } else if (typeof link !== "undefined") {
+        el.firstChild.classList.remove("border");
+      }
+    }
+
+    const theDate = (dte) => {
+      // It gets the string "photo taken" from data and convert it into valid date
+      const date = new Date(dte);
+      const opt = { year: "numeric", month: "long", day: "numeric" };
+      return date.toLocaleString("en-US", opt);
+    }
 
     onMounted(() => {
       spinner.value = document.querySelector(".flickr .spinner");
     });
-  },
-  components: {
-    FlickrUser,
+
+    return {
+      emittedUserId,
+      bordered,
+      mountExec,
+      theDate,
+      apiUrl,
+      url_params,
+      error,
+      photos,
+      nextPage,
+      totalPages
+    }
   },
 });
 </script>

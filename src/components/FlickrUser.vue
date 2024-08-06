@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { defineComponent, defineEmits, ref } from "vue";
+import { defineComponent, ref } from "vue";
 const api_key = import.meta.env.VITE_API_KEY;
 
 export default defineComponent({
@@ -23,7 +23,7 @@ export default defineComponent({
       type: Array,
     },
   },
-  setup(props) {
+  setup(props, context) {
     // App variables
     const user_name = ref(String);
     const user_id = ref(Array);
@@ -63,12 +63,7 @@ export default defineComponent({
           user_id.value = resJson.user.id;
 
           // Emits the user ID to the FlickrPhotos component
-          const emitter = defineEmits(["userID"]);
-          const emitUserId = () => {
-            emitter("userID"), user_id.value;
-          };
-
-          return emitUserId;
+          return context.emit("userID", user_id.value)
         })
         .catch((err) => {
           // Cleaning up input field and old user iD from app
