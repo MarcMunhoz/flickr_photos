@@ -36,105 +36,120 @@
 </template>
 
 <script>
+import { defineComponent, onMounted, ref } from "vue";
 import FlickrUser from "@/components/FlickrUser.vue";
 import apiUrl from "@/utils/apiUrl.js";
 const api_key = import.meta.env.VITE_API_KEY;
 const nextPage = 1;
 
-export default {
+export default defineComponent({
   name: "FlickrPhotos",
-  data() {
-    return {
-      photos: [],
-      user_id: String,
-      photos_owner: "",
-      totalPages: 1,
-      nextPage,
-      apiUrl,
-      url: String,
-      url_params: Array,
-      error: "",
-      spinner: String,
-      isActive: false,
-    };
-  },
   components: {
     FlickrUser,
   },
-  created() {
-    // Getting the API params from apiUrl.js
-    this.url_params = Object.keys(this.apiUrl[0].params[0]);
-  },
-  methods: {
-    emittedUserId(userId) {
-      // Getting the user ID from the FlickrUser component by emit
-      this.user_id = userId;
-      return this.pageMount();
-    },
-    pageMount() {
-      // Using the data from apiUrl.js to compose the API url
-      this.url = `${this.apiUrl[0].url}${this.apiUrl[0].endpoint}?method=${this.apiUrl[0].method[0]}&api_key=${api_key}&user_id=${this.user_id}&page=${this.nextPage}&${this.url_params[0]}=${this.apiUrl[0].params[0].extras}&${this.url_params[1]}=${this.apiUrl[0].params[0].per_page}&${this.url_params[2]}=${this.apiUrl[0].params[0].format}&${this.url_params[3]}=${this.apiUrl[0].params[0].nojsoncallback}`;
-      this.spinner.classList.remove("visually-hidden");
-      this.photos = []; // Cleaning up the old gallery data
+  setup() {
+    const photos = ref(Array);
+    const user_id = ref(String);
+    const photos_owner = ref(String);
+    const totalPages = ref(Number);
+    const nextPage = ref(null);
+    const url = ref(URL);
+    const url_params = ref(Array);
+    const error = ref(String);
+    const spinner = ref(String);
+    const isActive = ref(Boolean);
 
-      fetch(this.url, { method: "get" })
-        // Getting the response from the Flickr API
-        .then((resp) => {
-          if (resp.ok) {
-            return resp.json();
-          } else {
-            throw new Error("Something went wrong");
-          }
+    photos.value = [];
+    photos_owner.value = "";
+    totalPages.value = 1;
+    error.value = "";
+    isActive.value = false;
+
+    url_params.value = Object.keys(apiUrl[0].params[0]);
+
+    const emittedUserId = (userId) => {
+      user_id.value = userId;
+      return pageMount();
+    };
+
+    const pageMount = () => {
+      url.value = `${apiUrl[0].url}${apiUrl[0].endpoint}?method=${apiUrl[0].method[0]}&api_key=${api_key}&user_id=${user_id.value}&page=${nextPage.value}&${url_params.value[0]}=${apiUrl[0].params[0].extras}&${url_params.value[1]}=${apiUrl[0].params[0].per_page}&${url_params.value[2]}=${apiUrl[0].params[0].format}&${url_params.value[3]}=${apiUrl[0].params[0].nojsoncallback}`;
+      spinner.value.classList.remove("visually-hidden");
+      photos.value = [];
+
+      fetch(url.value, { method: "get" })
+        .then(res => {
+        if (res.ok) {
+          return res.json()
+        } else {
+          throw new Error("Something went wrong");          
+        }
         })
-        .then((respJson) => {
-          // If API returns data, it clears old fetch error messages and gets the gallery data
-          this.error = "";
-          this.spinner.classList.add("visually-hidden");
-          const rawData = respJson.photos;
-          this.totalPages = rawData.pages;
-          this.photos_owner = rawData.photo[0].ownername;
+        .then(resJson => {
+          error.value = ""
+          spinner.value.classList.add("visually-hidden")
+          const rawData = resJson.photos
+          totalPages.value = rawData.pages
+          photos_owner.value = rawData.photo[0].ownername
 
           for (let index = 0; index < rawData.photo.length; index++) {
-            this.photos.push(rawData.photo[index]); // It populates the array with all photos comin' from API data
+            photos.value.push(rawData.photo[index]); // It populates the array with all photos comin' from API data
           }
         })
-        .catch((err) => {
+      .catch((err) => {
           // Cleaning up the old gallery data from app
-          this.photos = "";
+          photos.value = "";
 
           // Errors handling
           if (err == "TypeError: Cannot read property 'ownername' of undefined") {
-            return (this.error = "Invalid username. Please, check it out.");
+            return (error.value = "Invalid username. Please, check it out.");
           } else {
-            return (this.error = err);
+            return (error.value = err);
           }
         });
-    },
-    mountExec(upDown) {
+    };
+
+    const mountExec = (upDown) => {
       // Cleaning up the old gallery data from app and executing next/prev page action
-      this.photos = [];
-      upDown === "down" ? (this.nextPage = this.nextPage - 1) : (this.nextPage = this.nextPage + 1);
-      return this.pageMount();
-    },
-    bordered(el, link) {
+      photos.value = [];
+      upDown === "down" ? (nextPage.value = nextPage.value - 1) : (nextPage.value = nextPage.value + 1);
+      pageMount();
+    }
+
+    const bordered = (el, link) => {
       // Mouseover effect if link to the original size exists
-      if (this.isActive === true && typeof link !== "undefined") {
+      if (isActive.value === true && typeof link !== "undefined") {
         el.classList.add("border");
       } else if (typeof link !== "undefined") {
         el.firstChild.classList.remove("border");
       }
-    },
-    theDate(dte) {
+    }
+
+    const theDate = (dte) => {
       // It gets the string "photo taken" from data and convert it into valid date
       const date = new Date(dte);
       const opt = { year: "numeric", month: "long", day: "numeric" };
       return date.toLocaleString("en-US", opt);
-    },
+    }
+
+    onMounted(() => {
+      spinner.value = document.querySelector(".flickr .spinner");
+    });
+
+    return {
+      emittedUserId,
+      bordered,
+      mountExec,
+      theDate,
+      apiUrl,
+      url_params,
+      error,
+      photos,
+      nextPage,
+      totalPages
+    }
   },
-  mounted() {
-    this.spinner = document.querySelector(".flickr .spinner");
-  },
-};
+});
 </script>
 
 <style scoped lang="less">
