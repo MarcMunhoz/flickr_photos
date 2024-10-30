@@ -23,8 +23,8 @@
       <li v-for="photo in photos" :key="photo.id">
         <h3 v-if="photo.title" class="mb-2 text-ellipsis">{{ photo.title }}</h3>
         <h3 v-else class="mb-2 fs-4 text-decoration-line-through text-muted">Untitled</h3>
-        <a :href="photo.url_o" target="_photo" @mouseover="bordered_new(true, $event.target, photo.url_o)" @mouseleave="bordered_new(false, $event.target, photo.url_o)">
-          <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-3 border-primary mw-100" />
+        <a :href="photo.url_o" target="_photo" @mouseover="bordered(true, $event.target, photo.url_o)" @mouseleave="bordered(false, $event.target, photo.url_o)">
+          <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-4 border-unicorn mw-100" />
         </a>
         <cite v-if="photo.tags.length > 0" class="d-block px-2 simple-font fst-normal text-ellipsis"><span class="fw-bold">Tags:</span> {{ photo.tags }}</cite>
         <cite class="d-block px-2 simple-font fst-normal"><span class="fw-bold">Date</span>: {{ theDate(photo.datetaken) }}</cite>
@@ -115,7 +115,7 @@ export default defineComponent({
       pageMount();
     };
 
-    const bordered_new = (state, target = null, url = null) => {
+    const bordered = (state, target = null, url = null) => {
       if (state && target && url) {
         target.classList.add("border");
       } else if (!state && target && url) {
@@ -136,7 +136,7 @@ export default defineComponent({
 
     return {
       emittedUserId,
-      bordered_new,
+      bordered,
       mountExec,
       theDate,
       apiUrl,
@@ -205,6 +205,10 @@ ul {
     background: linear-gradient(to right, white, @color-flickr-blue, @color-flickr-pink, white);
     background-clip: text;
   }
+}
+
+.border-unicorn {
+  border-image: linear-gradient(to right, @color-flickr-pink, yellow, rgb(34, 128, 83), @color-flickr-blue) 1 !important;
 }
 
 .flickr {
