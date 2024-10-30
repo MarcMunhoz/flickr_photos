@@ -23,8 +23,8 @@
       <li v-for="photo in photos" :key="photo.id">
         <h3 v-if="photo.title" class="mb-2 text-ellipsis">{{ photo.title }}</h3>
         <h3 v-else class="mb-2 fs-4 text-decoration-line-through text-muted">Untitled</h3>
-        <a :href="photo.url_o" target="_photo" @mouseover="(isActive = true), bordered($event.target, photo.url_o)" @mouseleave="(isActive = false), bordered($event.target, photo.url_o)">
-          <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-3 border-primary mw-100" />
+        <a :href="photo.url_o" target="_photo" @mouseover="bordered(true, $event.target, photo.url_o)" @mouseleave="bordered(false, $event.target, photo.url_o)">
+          <img :src="photo.url_z" :title="photo.title" lazy="loading" class="border-4 border-unicorn mw-100" />
         </a>
         <cite v-if="photo.tags.length > 0" class="d-block px-2 simple-font fst-normal text-ellipsis"><span class="fw-bold">Tags:</span> {{ photo.tags }}</cite>
         <cite class="d-block px-2 simple-font fst-normal"><span class="fw-bold">Date</span>: {{ theDate(photo.datetaken) }}</cite>
@@ -63,7 +63,6 @@ export default defineComponent({
     photos_owner.value = "";
     totalPages.value = 1;
     error.value = "";
-    isActive.value = false;
 
     url_params.value = Object.keys(apiUrl[0].params[0]);
 
@@ -78,25 +77,25 @@ export default defineComponent({
       photos.value = [];
 
       fetch(url.value, { method: "get" })
-        .then(res => {
-        if (res.ok) {
-          return res.json()
-        } else {
-          throw new Error("Something went wrong");          
-        }
+        .then((res) => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            throw new Error("Something went wrong");
+          }
         })
-        .then(resJson => {
-          error.value = ""
-          spinner.value.classList.add("visually-hidden")
-          const rawData = resJson.photos
-          totalPages.value = rawData.pages
-          photos_owner.value = rawData.photo[0].ownername
+        .then((resJson) => {
+          error.value = "";
+          spinner.value.classList.add("visually-hidden");
+          const rawData = resJson.photos;
+          totalPages.value = rawData.pages;
+          photos_owner.value = rawData.photo[0].ownername;
 
           for (let index = 0; index < rawData.photo.length; index++) {
             photos.value.push(rawData.photo[index]); // It populates the array with all photos comin' from API data
           }
         })
-      .catch((err) => {
+        .catch((err) => {
           // Cleaning up the old gallery data from app
           photos.value = "";
 
@@ -114,23 +113,22 @@ export default defineComponent({
       photos.value = [];
       upDown === "down" ? (nextPage.value = nextPage.value - 1) : (nextPage.value = nextPage.value + 1);
       pageMount();
-    }
+    };
 
-    const bordered = (el, link) => {
-      // Mouseover effect if link to the original size exists
-      if (isActive.value === true && typeof link !== "undefined") {
-        el.classList.add("border");
-      } else if (typeof link !== "undefined") {
-        el.firstChild.classList.remove("border");
+    const bordered = (state, target = null, url = null) => {
+      if (state && target && url) {
+        target.classList.add("border");
+      } else if (!state && target && url) {
+        target.firstElementChild.classList.remove("border");
       }
-    }
+    };
 
     const theDate = (dte) => {
       // It gets the string "photo taken" from data and convert it into valid date
       const date = new Date(dte);
       const opt = { year: "numeric", month: "long", day: "numeric" };
       return date.toLocaleString("en-US", opt);
-    }
+    };
 
     onMounted(() => {
       spinner.value = document.querySelector(".flickr .spinner");
@@ -145,9 +143,10 @@ export default defineComponent({
       url_params,
       error,
       photos,
+      photos_owner,
       nextPage,
-      totalPages
-    }
+      totalPages,
+    };
   },
 });
 </script>
@@ -206,6 +205,10 @@ ul {
     background: linear-gradient(to right, white, @color-flickr-blue, @color-flickr-pink, white);
     background-clip: text;
   }
+}
+
+.border-unicorn {
+  border-image: linear-gradient(to right, @color-flickr-pink, yellow, rgb(34, 128, 83), @color-flickr-blue) 1 !important;
 }
 
 .flickr {
