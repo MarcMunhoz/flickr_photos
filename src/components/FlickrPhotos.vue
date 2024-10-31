@@ -57,7 +57,6 @@ export default defineComponent({
     const url_params = ref(Array);
     const error = ref(String);
     const spinner = ref(String);
-    const isActive = ref(Boolean);
 
     photos.value = [];
     photos_owner.value = "";
