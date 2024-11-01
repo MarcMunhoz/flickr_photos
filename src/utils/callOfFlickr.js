@@ -11,7 +11,7 @@ async function fetchData(apiParams) {
   if (apiParams && typeof apiParams === 'object') {
     const queryParams = new URLSearchParams(apiParams).toString();
     url += `&${queryParams}`;
-  }
+  }  
 
   try {
     const res = await fetch(url, { method: "get" });

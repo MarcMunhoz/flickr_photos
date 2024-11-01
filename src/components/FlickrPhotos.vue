@@ -2,7 +2,7 @@
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
     <h1 class="w-100 text-center text-uppercase mb-4 gradient-flickr">Public Flickr Gallery</h1>
     <cite>Search any Flickr user's photos by username</cite>
-    <FlickrUser @userID="emittedUserId" :apiUrl="apiUrl" :url_params="url_params" />
+    <FlickrUser @userID="emittedUserId" />
 
     <p class="text-danger w-100">{{ error }}</p>
 
@@ -38,9 +38,7 @@
 <script>
 import { defineComponent, onMounted, ref } from "vue";
 import FlickrUser from "@/components/FlickrUser.vue";
-import apiUrl from "@/utils/apiUrl.js";
-const api_key = import.meta.env.VITE_API_KEY;
-const nextPage = 1;
+import fetchData from "@/utils/callOfFlickr.js";
 
 export default defineComponent({
   name: "FlickrPhotos",
@@ -53,8 +51,6 @@ export default defineComponent({
     const photos_owner = ref(String);
     const totalPages = ref(Number);
     const nextPage = ref(null);
-    const url = ref(URL);
-    const url_params = ref(Array);
     const error = ref(String);
     const spinner = ref(String);
 
@@ -63,48 +59,47 @@ export default defineComponent({
     totalPages.value = 1;
     error.value = "";
 
-    url_params.value = Object.keys(apiUrl[0].params[0]);
-
     const emittedUserId = (userId) => {
       user_id.value = userId;
       return pageMount();
     };
 
-    const pageMount = () => {
-      url.value = `${apiUrl[0].url}${apiUrl[0].endpoint}?method=${apiUrl[0].method[0]}&api_key=${api_key}&user_id=${user_id.value}&page=${nextPage.value}&${url_params.value[0]}=${apiUrl[0].params[0].extras}&${url_params.value[1]}=${apiUrl[0].params[0].per_page}&${url_params.value[2]}=${apiUrl[0].params[0].format}&${url_params.value[3]}=${apiUrl[0].params[0].nojsoncallback}`;
+    const pageMount = async () => {
       spinner.value.classList.remove("visually-hidden");
+      let rawData = Object;
       photos.value = [];
 
-      fetch(url.value, { method: "get" })
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            throw new Error("Something went wrong");
-          }
-        })
-        .then((resJson) => {
-          error.value = "";
-          spinner.value.classList.add("visually-hidden");
-          const rawData = resJson.photos;
-          totalPages.value = rawData.pages;
-          photos_owner.value = rawData.photo[0].ownername;
+      const fetchParams = {
+        method: "flickr.people.getPublicPhotos",
+        extras: ["url_z", "url_o", "tags", "date_taken", "owner_name"],
+        page: nextPage.value,
+        per_page: "12",
+        user_id: user_id.value,
+      };
 
-          for (let index = 0; index < rawData.photo.length; index++) {
-            photos.value.push(rawData.photo[index]); // It populates the array with all photos comin' from API data
-          }
-        })
-        .catch((err) => {
-          // Cleaning up the old gallery data from app
-          photos.value = "";
+      try {
+        rawData = await fetchData(fetchParams);
 
-          // Errors handling
-          if (err == "TypeError: Cannot read property 'ownername' of undefined") {
-            return (error.value = "Invalid username. Please, check it out.");
-          } else {
-            return (error.value = err);
-          }
-        });
+        error.value = null;
+        spinner.value.classList.add("visually-hidden");
+      } catch (err) {
+        // Cleaning up the old gallery data from app
+        photos.value = "";
+
+        // Errors handling
+        if (err == "TypeError: Cannot read property 'ownername' of undefined") {
+          return (error.value = "Invalid username. Please, check it out.");
+        } else {
+          return (error.value = err);
+        }
+      }
+
+      totalPages.value = rawData.photos.pages;
+      photos_owner.value = rawData.photos.photo[0].ownername;
+
+      for (let index = 0; index < rawData.photos.photo.length; index++) {
+        photos.value.push(rawData.photos.photo[index]); // It populates the array with all photos comin' from API data
+      }
     };
 
     const mountExec = (upDown) => {
@@ -138,8 +133,6 @@ export default defineComponent({
       bordered,
       mountExec,
       theDate,
-      apiUrl,
-      url_params,
       error,
       photos,
       photos_owner,
