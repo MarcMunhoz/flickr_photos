@@ -168,18 +168,6 @@ ul {
   white-space: nowrap;
 }
 
-.gradient-flickr {
-  background: linear-gradient(to right, white, white, @color-flickr-blue, @color-flickr-pink, white, white);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  @media @sm-screens {
-    background: linear-gradient(to right, white, @color-flickr-blue, @color-flickr-pink, white);
-    background-clip: text;
-  }
-}
-
 .flickr {
   img {
     height: 305px;
