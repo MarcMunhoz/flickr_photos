@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <h1>This is a recent photos page</h1>
+    <h1 class="gradient-flickr my-4 text-uppercase">Recent public photos on Flickr</h1>
 
     <RecentPhotos />
   </div>
