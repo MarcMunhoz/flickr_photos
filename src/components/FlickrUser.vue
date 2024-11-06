@@ -10,7 +10,7 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import fetchData from "@/utils/callOfFlickr";
+import { fetchData } from "@/utils/usefulFunctions.js";
 
 export default defineComponent({
   name: "FlickrUser",

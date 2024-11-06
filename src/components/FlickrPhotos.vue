@@ -38,7 +38,7 @@
 <script>
 import { defineComponent, onMounted, ref } from "vue";
 import FlickrUser from "@/components/FlickrUser.vue";
-import fetchData from "@/utils/callOfFlickr.js";
+import { fetchData, theDate, bordered } from "@/utils/usefulFunctions.js";
 
 export default defineComponent({
   name: "FlickrPhotos",
@@ -109,21 +109,6 @@ export default defineComponent({
       pageMount();
     };
 
-    const bordered = (state, target = null, url = null) => {
-      if (state && target && url) {
-        target.classList.add("border");
-      } else if (!state && target && url) {
-        target.firstElementChild.classList.remove("border");
-      }
-    };
-
-    const theDate = (dte) => {
-      // It gets the string "photo taken" from data and convert it into valid date
-      const date = new Date(dte);
-      const opt = { year: "numeric", month: "long", day: "numeric" };
-      return date.toLocaleString("en-US", opt);
-    };
-
     onMounted(() => {
       spinner.value = document.querySelector(".flickr .spinner");
     });
@@ -144,10 +129,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="less">
-@color-flickr-blue: #0462dc;
-@color-flickr-pink: #ff0084;
-@sm-screens: ~"(max-width: 768px)";
-
 h3 {
   margin: 40px 0 0;
   min-height: 36px;
@@ -197,10 +178,6 @@ ul {
     background: linear-gradient(to right, white, @color-flickr-blue, @color-flickr-pink, white);
     background-clip: text;
   }
-}
-
-.border-unicorn {
-  border-image: linear-gradient(to right, @color-flickr-pink, yellow, rgb(34, 128, 83), @color-flickr-blue) 1 !important;
 }
 
 .flickr {
