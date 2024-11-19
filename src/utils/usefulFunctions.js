@@ -1,7 +1,20 @@
-import { ref } from "vue";
+import { ref, reactive, watch } from "vue";
 const api_key = import.meta.env.VITE_API_KEY;
 
+const evtBus = reactive({})
 const data = ref(Object);
+
+export function emit(evtName, payload) {
+  evtBus[evtName] = payload
+}
+
+export function on(evtName, callback) {
+  watch(() => evtBus[evtName], newValue => {
+    if (newValue !== undefined) {
+      callback(newValue)
+    }
+  })
+}
 
 async function fetchData(apiParams) {
   let url = `https://api.flickr.com/services/rest?api_key=${api_key}&format=json&nojsoncallback=1`;
@@ -37,3 +50,4 @@ function bordered (state, target = null, url = null)  {
 
 // Export each function as a named export
 export { fetchData, theDate, bordered };
+export default { emit, on }

@@ -1,8 +1,7 @@
 <template>
-  <div class="w-100">
-    <input type="text" size="20" v-model="user_name" @keyup.enter="getUserID()" class="border border-2 border-info text-info p-1 me-2" placeholder="Flickr user name" autofocus />
-
-    <button type="submit" value="Submit" @click="getUserID()" class="btn btn-sm btn-danger">Submit</button>
+  <div class="d-flex" role="search">
+    <input class="form-control me-2" type="search" placeholder="Flickr user name" aria-label="Search" v-model="user_name" @keyup.enter="getUserID()" autofocus />
+    <button class="btn btn-outline-primary" type="submit" @click="getUserID()">Search</button>
 
     <p class="text-danger">{{ error }}</p>
   </div>
@@ -10,11 +9,11 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import { fetchData } from "@/utils/usefulFunctions.js";
+import { emit, fetchData } from "@/utils/usefulFunctions.js";
 
 export default defineComponent({
   name: "FlickrUser",
-  setup(props, context) {
+  setup() {
     // App variables
     const user_name = ref(String);
     const user_id = ref(Array);
@@ -46,7 +45,7 @@ export default defineComponent({
         user_id.value = rawData.user.id;
 
         // Emits the user ID to the FlickrPhotos component
-        context.emit("userID", user_id.value);
+        emit("userID", user_id.value);
       } catch (err) {
         // Errors handling
         if (err == "TypeError: Failed to fetch") {

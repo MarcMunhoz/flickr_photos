@@ -1,8 +1,6 @@
 <template>
   <div class="flickr py-3 d-flex flex-row flex-wrap justify-content-around mx-auto w-75">
     <h1 class="w-100 text-center text-uppercase mb-4 gradient-flickr">Public Flickr Gallery</h1>
-    <cite>Search any Flickr user's photos by username</cite>
-    <FlickrUser @userID="emittedUserId" />
 
     <p class="text-danger w-100">{{ error }}</p>
 
@@ -37,14 +35,10 @@
 
 <script>
 import { defineComponent, onMounted, ref } from "vue";
-import FlickrUser from "@/components/FlickrUser.vue";
-import { fetchData, theDate, bordered } from "@/utils/usefulFunctions.js";
+import { on, fetchData, theDate, bordered } from "@/utils/usefulFunctions.js";
 
 export default defineComponent({
   name: "FlickrPhotos",
-  components: {
-    FlickrUser,
-  },
   setup() {
     const photos = ref(Array);
     const user_id = ref(String);
@@ -61,6 +55,7 @@ export default defineComponent({
 
     const emittedUserId = (userId) => {
       user_id.value = userId;
+      nextPage.value = 1;
       return pageMount();
     };
 
@@ -111,6 +106,10 @@ export default defineComponent({
 
     onMounted(() => {
       spinner.value = document.querySelector(".flickr .spinner");
+
+      on("userID", (userId) => {
+        emittedUserId(userId);
+      });
     });
 
     return {
