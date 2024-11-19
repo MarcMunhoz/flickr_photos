@@ -1,14 +1,26 @@
 <template>
   <div class="gallery-container">
     <div v-for="(photo, index) in photos" :key="index" class="gallery-item" :style="getGridStyles(index)">
-      <a :href="photo.url_o" target="_recent" @mouseover="bordered(true, $event.target, photo.url_o)" @mouseleave="bordered(false, $event.target, photo.url_o)" @click="openModal($event, photo.url_o)">
+      <a
+        :href="photo.url_o"
+        target="_recent"
+        @mouseover="bordered(true, $event.target, photo.url_o)"
+        @mouseleave="bordered(false, $event.target, photo.url_o)"
+        @click="openModal($event, photo.url_o, photo.title)"
+      >
         <img :src="photo.url_z" :title="photo.title ? photo.title : 'NO TITLE'" lazy="loading" class="border-4 border-unicorn gallery-image" />
       </a>
     </div>
 
     <!-- Modal for Larger View -->
-    <div v-if="showModal" class="modal" @click="showModal = false">
+    <div
+      v-if="showModal"
+      class="modal bg-black d-flex flex-wrap justify-content-center align-items-center position-fixed top-0 start-0 h-100 w-100"
+      style="--bs-bg-opacity: 0.8; font-family: var(--bs-body-font-family)"
+      @click="showModal = false"
+    >
       <img :src="currentPhoto" alt="Large view" class="modal-image" />
+      <p class="text-light fs-4 w-100" v-if="currentPhotoTitle.length">{{ currentPhotoTitle }}</p>
     </div>
   </div>
 </template>
@@ -22,16 +34,17 @@ export default defineComponent({
   setup() {
     const photos = ref([]);
     const perPage = ref(35);
-    const currentPage = ref(1);
 
     // Modal state
     const showModal = ref(false);
     const currentPhoto = ref(null);
+    const currentPhotoTitle = ref(String);
 
     // Open modal with the selected image
-    const openModal = (evt, src) => {
+    const openModal = (evt, src, title) => {
       evt.preventDefault();
       currentPhoto.value = src;
+      currentPhotoTitle.value = title;
       showModal.value = true;
     };
 
@@ -82,6 +95,7 @@ export default defineComponent({
       bordered,
       showModal,
       currentPhoto,
+      currentPhotoTitle,
       openModal,
       getGridStyles,
     };
@@ -111,17 +125,6 @@ export default defineComponent({
 }
 
 /* Modal styling */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.8);
-}
 
 .modal-image {
   max-width: 90%;
