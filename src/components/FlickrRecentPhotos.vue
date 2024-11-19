@@ -33,7 +33,6 @@ export default defineComponent({
   name: "RecentPhotos",
   setup() {
     const photos = ref([]);
-    const perPage = ref(35);
 
     // Modal state
     const showModal = ref(false);
@@ -60,10 +59,10 @@ export default defineComponent({
       return spans[index % spans.length];
     };
 
-    const fetchParams = {
+    let fetchParams = {
       method: "flickr.photos.getRecent",
       extras: ["url_z", "url_o", "tags", "date_taken", "owner_name"],
-      per_page: perPage.value,
+      per_page: 35,
     };
 
     const fetchRecent = async () => {
@@ -79,8 +78,9 @@ export default defineComponent({
 
     window.addEventListener("scroll", () => {
       // Verifica se a rolagem chegou ao final da página
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        perPage.value += 35;
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        fetchParams.per_page += 35;
+
         fetchRecent();
       }
     });
