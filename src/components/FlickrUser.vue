@@ -12,7 +12,9 @@
     />
     <button class="btn btn-outline-primary" type="submit" @click="getUserID()">Search</button>
 
-    <p class="text-danger">{{ error }}</p>
+    <div class="alert alert-danger fixed-bottom text-uppercase" style="font-family: var(--bs-body-font-family)" role="alert" v-if="error">
+      {{ error }}
+    </div>
   </div>
 </template>
 
@@ -35,12 +37,6 @@ export default defineComponent({
 
     // Methods
     const getUserID = async () => {
-      const spinner = document.querySelector(".spinner");
-      spinner.classList.remove("visually-hidden");
-
-      const gallery = document.querySelector(".gallery");
-      gallery.classList.add("visually-hidden");
-
       if (user_name.value.length === 0) {
         return (error.value = "Please type a username.");
       }
@@ -60,6 +56,11 @@ export default defineComponent({
         user_id.value = rawData.user.id;
 
         // Emits the user ID to the FlickrPhotos component
+        const spinner = document.querySelector(".spinner");
+        spinner.classList.remove("visually-hidden");
+
+        const gallery = document.querySelector(".gallery");
+        gallery.classList.add("visually-hidden");
         emit("userID", user_id.value);
       } catch (err) {
         // Errors handling

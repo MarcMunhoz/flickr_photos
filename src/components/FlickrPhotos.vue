@@ -59,6 +59,8 @@ export default defineComponent({
     const emittedUserId = (userId) => {
       user_id.value = userId;
       nextPage.value = 1;
+      error.value = "";
+
       return pageMount();
     };
 
@@ -92,11 +94,15 @@ export default defineComponent({
         }
       }
 
-      totalPages.value = rawData.photos.pages;
-      photos_owner.value = rawData.photos.photo[0].ownername;
+      if (rawData.photos.total > 0) {
+        totalPages.value = rawData.photos.pages;
+        photos_owner.value = rawData.photos.photo[0].ownername;
 
-      for (let index = 0; index < rawData.photos.photo.length; index++) {
-        photos.value.push(rawData.photos.photo[index]); // It populates the array with all photos comin' from API data
+        for (let index = 0; index < rawData.photos.photo.length; index++) {
+          photos.value.push(rawData.photos.photo[index]); // It populates the array with all photos comin' from API data
+        }
+      } else {
+        return (error.value = "This user doesn't have any public photos.");
       }
     };
 
