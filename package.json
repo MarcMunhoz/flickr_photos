@@ -28,6 +28,7 @@
     "vite": "^3.2.3"
   },
   "resolutions": {
-    "set-value": "^4.0.1"
+    "set-value": "^4.0.1",
+    "cross-spawn": "^6.0.6"
   }
 }

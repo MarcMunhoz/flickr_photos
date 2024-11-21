@@ -1,0 +1,15 @@
+.border-unicorn {
+  border-image: linear-gradient(to right, @color-flickr-pink, yellow, rgb(34, 128, 83), @color-flickr-blue) 1 !important;
+}
+
+.gradient-flickr {
+  background: linear-gradient(to right, white, white, @color-flickr-blue, @color-flickr-pink, white, white);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  @media @sm-screens {
+    background: linear-gradient(to right, white, @color-flickr-blue, @color-flickr-pink, white);
+    background-clip: text;
+  }
+}

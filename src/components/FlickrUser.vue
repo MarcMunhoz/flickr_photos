@@ -1,91 +1,87 @@
 <template>
-  <div class="w-100">
-    <input type="text" size="20" v-model="user_name" @keyup.enter="urlMount()" class="border border-2 border-info text-info p-1 me-2" placeholder="Flickr user name" autofocus />
+  <div class="d-flex" role="search">
+    <input
+      class="user-name form-control me-2"
+      :class="{ 'is-invalid': error == 'User not found. Please, check it out.' }"
+      style="font-family: var(--bs-body-font-family)"
+      type="search"
+      placeholder="Flickr user name"
+      aria-label="Search"
+      v-model="user_name"
+      @keyup.enter="getUserID()"
+      autofocus
+    />
+    <button class="btn btn-outline-primary" type="submit" @click="getUserID()">Search</button>
 
-    <button type="submit" value="Submit" @click="urlMount()" class="btn btn-sm btn-danger">Submit</button>
-
-    <p class="text-danger">{{ error }}</p>
+    <div class="alert alert-danger fixed-bottom text-uppercase" style="font-family: var(--bs-body-font-family)" role="alert" v-if="error">
+      {{ error }}
+    </div>
   </div>
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
-const api_key = import.meta.env.VITE_API_KEY;
+import { emit, fetchData } from "@/utils/usefulFunctions.js";
 
 export default defineComponent({
   name: "FlickrUser",
-  props: {
-    // Importing from FickrPhotos component
-    apiUrl: {
-      type: Object,
-    },
-    url_params: {
-      type: Array,
-    },
-  },
-  setup(props, context) {
+  setup() {
     // App variables
     const user_name = ref(String);
     const user_id = ref(Array);
     const error = ref(String);
-    const url = ref(URL);
 
     // Default values
     user_name.value = "";
     user_id.value = [];
-    error.value = "";
+    error.value = null;
 
     // Methods
-    const urlMount = () => {
-      if (user_name.value.length) {
-        error.value = "";
-        url.value = `${props.apiUrl[0].url}${props.apiUrl[0].endpoint}?method=${props.apiUrl[0].method[1]}&api_key=${api_key}&${props.url_params[2]}=${props.apiUrl[0].params[0].format}&${props.url_params[3]}=${props.apiUrl[0].params[0].nojsoncallback}&username=${user_name.value}`;
-
-        return getUserID(url.value);
-      } else {
-        error.value = "Please type a username.";
+    const getUserID = async () => {
+      if (user_name.value.length === 0) {
+        return (error.value = "Please type a username.");
       }
-    };
 
-    const getUserID = (theUrl) => {
-      fetch(theUrl, { method: "get" })
-        .then((res) => {
-          // Getting the response from the Flickr API
-          if (res.ok) {
-            return res.json();
-          } else {
-            throw new Error("Something went wrong");
-          }
-        })
-        .then((resJson) => {
-          // If API returns data, it clears old fetch error messages and gets the user ID
-          error.value = "";
-          user_id.value = resJson.user.id;
+      let rawData = Object;
 
-          // Emits the user ID to the FlickrPhotos component
-          return context.emit("userID", user_id.value)
-        })
-        .catch((err) => {
-          // Cleaning up input field and old user iD from app
-          user_name.value = "";
-          user_id.value = "";
+      const fetchParams = {
+        method: "flickr.people.findByUsername",
+        username: user_name.value,
+      };
 
-          console.log(err);
+      rawData = await fetchData(fetchParams);
+      try {
+        rawData = await fetchData(fetchParams);
 
-          // Errors handling
-          if (err == "TypeError: Failed to fetch") {
-            return (error.value = "Connection error. Try it later.");
-          } else {
-            return (error.value = "User not found. Please, check it out.");
-          }
-        });
+        error.value = null;
+        user_id.value = rawData.user.id;
+
+        // Emits the user ID to the FlickrPhotos component
+        const spinner = document.querySelector(".spinner");
+        spinner.classList.remove("visually-hidden");
+
+        const gallery = document.querySelector(".gallery");
+        gallery.classList.add("visually-hidden");
+        emit("userID", user_id.value);
+      } catch (err) {
+        // Errors handling
+        if (err == "TypeError: Failed to fetch") {
+          return (error.value = "Connection error. Try it later.");
+        } else {
+          return (error.value = "User not found. Please, check it out.");
+        }
+      }
+
+      // Cleaning up input field and old user iD from app
+      user_name.value = "";
+      user_id.value = null;
     };
 
     // Exposing data to template
     return {
-      user_name,
+      getUserID,
       error,
-      urlMount,
+      user_name,
     };
   },
 });

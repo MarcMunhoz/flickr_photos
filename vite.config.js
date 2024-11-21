@@ -24,5 +24,16 @@ export default defineConfig(({ mode }) => {
         usePolling: true
       }
     },
+    css: {
+      preprocessorOptions: {
+        less: {
+          additionalData: `
+            @sm-screens: ~"(max-width: 768px)";
+            @color-flickr-blue: #0462dc;
+            @color-flickr-pink: #ff0084;
+          `
+        }
+      }
+    }
   };
 });
