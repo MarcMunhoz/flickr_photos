@@ -1,7 +1,8 @@
 <template>
   <div class="d-flex" role="search">
     <input
-      class="form-control me-2"
+      class="user-name form-control me-2"
+      :class="{ 'is-invalid': error == 'User not found. Please, check it out.' }"
       style="font-family: var(--bs-body-font-family)"
       type="search"
       placeholder="Flickr user name"
