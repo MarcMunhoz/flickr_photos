@@ -1,6 +1,15 @@
 <template>
   <div class="d-flex" role="search">
-    <input class="form-control me-2" type="search" placeholder="Flickr user name" aria-label="Search" v-model="user_name" @keyup.enter="getUserID()" autofocus />
+    <input
+      class="form-control me-2"
+      style="font-family: var(--bs-body-font-family)"
+      type="search"
+      placeholder="Flickr user name"
+      aria-label="Search"
+      v-model="user_name"
+      @keyup.enter="getUserID()"
+      autofocus
+    />
     <button class="btn btn-outline-primary" type="submit" @click="getUserID()">Search</button>
 
     <p class="text-danger">{{ error }}</p>
@@ -26,6 +35,12 @@ export default defineComponent({
 
     // Methods
     const getUserID = async () => {
+      const spinner = document.querySelector(".spinner");
+      spinner.classList.remove("visually-hidden");
+
+      const gallery = document.querySelector(".gallery");
+      gallery.classList.add("visually-hidden");
+
       if (user_name.value.length === 0) {
         return (error.value = "Please type a username.");
       }
