@@ -6,9 +6,9 @@
         target="_recent"
         @mouseover="bordered(true, $event.target, photo.url_o)"
         @mouseleave="bordered(false, $event.target, photo.url_o)"
-        @click="openModal($event, photo.url_o, photo.title)"
+        @click="openModal($event, photo.url_o, photo.title, photo.ownername)"
       >
-        <img :src="photo.url_z" :title="photo.title ? photo.title : 'NO TITLE'" lazy="loading" class="border-4 border-unicorn gallery-image" />
+        <img :src="photo.url_z" :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `" lazy="loading" class="border-4 border-unicorn gallery-image" />
       </a>
     </div>
 
@@ -20,13 +20,15 @@
       @click="showModal = false"
     >
       <img :src="currentPhoto" alt="Large view" class="modal-image" />
-      <p class="text-light fs-4 w-100" v-if="currentPhotoTitle.length">{{ currentPhotoTitle }}</p>
+      <p class="text-light fs-4 w-100">
+        <span v-if="currentPhotoTitle.length">{{ currentPhotoTitle }} - </span>by <span class="gradient-flickr text-uppercase">{{ currentPhotoOwner }}</span>
+      </p>
     </div>
   </div>
 </template>
 
 <script>
-import { onMounted, defineComponent, ref } from "vue";
+import { defineComponent, ref, onMounted, onUnmounted } from "vue";
 import { fetchData, theDate, bordered } from "@/utils/usefulFunctions.js";
 
 export default defineComponent({
@@ -38,13 +40,15 @@ export default defineComponent({
     const showModal = ref(false);
     const currentPhoto = ref(null);
     const currentPhotoTitle = ref(String);
+    const currentPhotoOwner = ref(String);
 
     // Open modal with the selected image
-    const openModal = (evt, src, title) => {
+    const openModal = (evt, src, title, owner) => {
       evt.preventDefault();
       currentPhoto.value = src;
       currentPhotoTitle.value = title;
-      showModal.value = true;
+      currentPhotoOwner.value = owner;
+      src && (showModal.value = true);
     };
 
     // Grid layout styles for mosaic effect
@@ -59,15 +63,16 @@ export default defineComponent({
       return spans[index % spans.length];
     };
 
+    let rawData = Object;
     let fetchParams = {
       method: "flickr.photos.getRecent",
-      extras: ["url_z", "url_o", "tags", "date_taken", "owner_name"],
+      extras: ["url_z", "url_o", "date_taken", "owner_name"],
       per_page: 35,
     };
 
     const fetchRecent = async () => {
       try {
-        let rawData = Object;
+        rawData = {};
         rawData = await fetchData(fetchParams);
 
         for (let index = 0; index < rawData.photos.photo.length; index++) {
@@ -76,17 +81,21 @@ export default defineComponent({
       } catch (error) {}
     };
 
-    window.addEventListener("scroll", () => {
-      // Verifica se a rolagem chegou ao final da página
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-        fetchParams.per_page += 35;
-
-        fetchRecent();
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 5) {
+        fetchParams.per_page += 35; // Incrementa 35
+        fetchRecent(); // Carrega novas fotos
       }
-    });
+    };
 
     onMounted(() => {
-      return fetchRecent();
+      fetchRecent();
+      window.addEventListener("scroll", handleScroll);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("scroll", handleScroll);
     });
 
     return {
@@ -96,6 +105,7 @@ export default defineComponent({
       showModal,
       currentPhoto,
       currentPhotoTitle,
+      currentPhotoOwner,
       openModal,
       getGridStyles,
     };
