@@ -1,12 +1,14 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      no_cache: true
     image: flickr-gallery_img
     volumes:
-      - .:/app
+      - ./app:/app
     working_dir: /app
     container_name: "flickr-gallery_ctn"
-    hostname: "flickr-gallery"
+    hostname: "flickr-gallery_hst"
     ports:
       - 2469:2469
     entrypoint: [ "yarn", "dev" ]

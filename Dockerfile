@@ -11,7 +11,7 @@ ARG APP_PATH=/app
 
 ENV PORT=2469
 
-COPY ["package.json", "yarn.lock", "./"]
+COPY ["./app/package.json", "./app/yarn.lock", "./"]
 
 RUN yarn global add vite \
   && yarn create vite \
