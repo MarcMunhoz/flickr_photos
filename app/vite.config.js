@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 
 // https://vitejs.dev/config/
-const path = require("path");
+const path = await import('path');
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: env.VITE_DEV_PORT,
+      proxy: {
+        "/api": "http://localhost:3000"
+      },
       watch: {
         usePolling: true
       }

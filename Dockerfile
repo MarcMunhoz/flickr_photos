@@ -8,18 +8,20 @@ LABEL author="Marcelo Munhoz <me@marcelomunhoz.com>" \
   modified="2024-08-01"
 
 ARG APP_PATH=/app
-
 ENV PORT=2469
-
-COPY ["./app/package.json", "./app/yarn.lock", "./"]
-
-RUN yarn global add vite \
-  && yarn create vite \
-  && yarn \
-  && rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /usr/share/man
 
 WORKDIR ${APP_PATH}
 
-VOLUME ${APP_PATH}
+COPY ["./app/package.json", "./app/yarn.lock", "./"]
+
+RUN apk add exa \
+  && yarn \
+  && rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /usr/share/man
+
+# Copia o restante da aplicação
+COPY ./app .
+
+# Expõe portas do Vite e Express
+EXPOSE 2469 3000
 
 ENTRYPOINT ["yarn", "dev"]

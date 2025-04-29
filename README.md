@@ -1,43 +1,109 @@
-# Flickr Photos
+# 📸 Flickr Photos - Public Gallery Viewer
 
-Public photo gallery from Flickr users.
+A simple photo gallery that displays public photos from any Flickr user using the Flickr API.  
+Built with **Vue 3 + Vite** for the frontend and **Express** middleware to safely handle API access.
 
-This' a simple photo gallery that uses the Flickr API to show the photos.
+You can search for any Flickr user by their username.  
+Example output:
 
-You can search the photos of any Flickr user by the username. Like example below:
+![Flickr people search](app/src/assets/img/example.jpg)
 
-![Flickr people search](/src/assets/img/example.jpg)
+---
 
-## What's need
+## 📦 Stack Overview
+
+- ⚡ [Vite](https://vitejs.dev/) + Vue 3 (frontend)
+- 🌐 Express.js as middleware (backend API proxy)
+- 🐳 Docker + Docker Compose (for development and deployment)
+- 🎨 Bootstrap + Less CSS
+- 🔒 Environment-based API key protection
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── app/
+│   ├── src/                 # Vue 3 app
+│   ├── public/              # Static assets
+│   ├── middleware/          # Express server for Flickr proxy
+│   ├── .env.example         # API key reference
+│   ├── package.json         # Dependencies & scripts
+│   ├── vite.config.js       # Vite settings & dev proxy
+│   └── yarn.lock
+├── Dockerfile
+└── docker-compose.yaml
+```
+
+---
+
+## 🚀 Getting Started
+
+Make sure you have the following installed:
 
 - [Docker](https://www.docker.com/get-started)
-- [Docker compose](https://docs.docker.com/compose/install)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Project setup | It Compiles and hot-reloads for development
+Then run the app:
 
+```bash
+docker compose up --build
 ```
-docker-compose up -d
-```
 
-## Compiles and minifies for production
+Frontend will be served at [http://localhost:2469](http://localhost:2469)  
+Backend API will be available at [http://localhost:3000/api/flickr](http://localhost:3000/api/flickr?method=...)
 
-\* **Inside container**
+---
 
-```
-docker container exec -it flickr-gallery_ctn sh
+## ⚙️ Build for Production
 
+Run these commands inside the container:
+
+```bash
+docker exec -it flickr-gallery_ctn sh
 yarn build
 ```
 
-## Customize configuration
+The built files will be in `app/dist`.
 
-See [Configuration Reference](https://cli.vuejs.org/config/).
+---
 
-### Internal used
+## 🧪 Development Features
 
-- Bootstrap
-- [Flickr API](https://www.flickr.com/services/api)
-- Less CSS
-- NodeJS
-- Vue 3
-- Vite
+- Hot Module Reload (HMR) for Vue via Vite
+- Auto proxy from frontend to Express (`/api` → `localhost:3000`)
+- Secure backend API key usage via `.env` file
+- Pre-configured script commands:
+
+```bash
+yarn dev           # Start both Vite and Express servers
+yarn dev:vite      # Start only the Vite server
+yarn dev:api       # Start only the Express middleware
+yarn build         # Build frontend for production
+yarn preview       # Serve built frontend locally
+```
+
+---
+
+## 🌐 Environment Variables
+
+Create a file `app/.env` based on `app/.env.example`:
+
+```
+VITE_API_KEY=your_flickr_api_key_here
+```
+
+---
+
+## 🧠 Notes
+
+- Uses the Flickr API: [Flickr API Docs](https://www.flickr.com/services/api/)
+- Includes image search by `flickr.people.findByUsername`
+- Express handles API requests to prevent exposing the API key
+
+---
+
+## 📄 License
+
+Personal/public project. Reuse freely.

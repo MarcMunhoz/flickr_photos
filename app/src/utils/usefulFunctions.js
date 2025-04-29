@@ -1,5 +1,4 @@
 import { ref, reactive, watch } from "vue";
-const api_key = import.meta.env.VITE_API_KEY;
 
 const evtBus = reactive({})
 const data = ref(Object);
@@ -17,22 +16,21 @@ export function on(evtName, callback) {
 }
 
 async function fetchData(apiParams) {
-  let url = `https://api.flickr.com/services/rest?api_key=${api_key}&format=json&nojsoncallback=1`;
+  let url = `/api/flickr`
 
   if (apiParams && typeof apiParams === 'object') {
-    const queryParams = new URLSearchParams(apiParams).toString();
-    url += `&${queryParams}`;
-  }  
-
-  try {
-    const res = await fetch(url, { method: "get" });
-    data.value = await res.json();  // Await the response JSON
-  } catch (error) {
-    console.error("Error fetching data:", error);
+    const queryParams = new URLSearchParams(apiParams).toString()
+    url += `?${queryParams}`
   }
 
-  return data.value;
+  const res = await fetch(url)
+  console.log(res);
+  
+  const data = await res.json()
+  return data
 }
+
+
 
 function theDate(dte) {
   const date = new Date(dte);

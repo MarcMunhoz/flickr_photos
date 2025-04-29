@@ -11,5 +11,5 @@ services:
     hostname: "flickr-gallery_hst"
     ports:
       - 2469:2469
-    entrypoint: [ "yarn", "dev" ]
+    entrypoint: /bin/sh -c "yarn && yarn dev"
     # entrypoint: ["sh", "-c", "sleep 2073600"] debug mode
