@@ -49,6 +49,7 @@ export default defineComponent({
         username: user_name.value,
       };
 
+      rawData = {};
       try {
         rawData = await fetchData(fetchParams);
 
