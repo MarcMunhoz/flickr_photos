@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 
 // https://vitejs.dev/config/
-const path = require("path");
+const path = await import("path");
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
     define: {
-      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
     },
     resolve: {
       alias: {
@@ -19,10 +19,14 @@ export default defineConfig(({ mode }) => {
       extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"],
     },
     server: {
+      allowedHosts: ["flickr-public-photos.onrender.com"],
       port: env.VITE_DEV_PORT,
+      proxy: {
+        "/api": "http://localhost:3000",
+      },
       watch: {
-        usePolling: true
-      }
+        usePolling: true,
+      },
     },
     css: {
       preprocessorOptions: {
@@ -31,9 +35,9 @@ export default defineConfig(({ mode }) => {
             @sm-screens: ~"(max-width: 768px)";
             @color-flickr-blue: #0462dc;
             @color-flickr-pink: #ff0084;
-          `
-        }
-      }
-    }
+          `,
+        },
+      },
+    },
   };
 });

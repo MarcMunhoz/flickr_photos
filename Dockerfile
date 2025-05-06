@@ -1,25 +1,30 @@
-FROM node:18-alpine
+FROM node:22-alpine AS base
 
 LABEL author="Marcelo Munhoz <me@marcelomunhoz.com>" \
   description="WebApp who displays public photos from a Flickr account" \
   version="1.0.1" \
   date_created="2021-08-26" \
   deploy="2022-11-11" \
-  modified="2024-08-01"
+  modified="2025-05-06"
 
 ARG APP_PATH=/app
+WORKDIR ${APP_PATH}
 
-ENV PORT=2469
+COPY ["./app/package.json", "./app/yarn.lock", "./"]
 
-COPY ["package.json", "yarn.lock", "./"]
-
-RUN yarn global add vite \
-  && yarn create vite \
+RUN apk add --no-cache exa \
   && yarn \
   && rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /usr/share/man
 
-WORKDIR ${APP_PATH}
+COPY ./app .
 
-VOLUME ${APP_PATH}
+# Stage para desenvolvimento (dev com Vite + Express)
+FROM base AS develop
+EXPOSE 2469 3000
+CMD ["yarn", "dev"]
 
-ENTRYPOINT ["yarn", "dev"]
+# Stage para produção (serve frontend com Express)
+FROM base AS production
+RUN yarn build
+EXPOSE 3000
+CMD ["node", "middleware/server.js"]
