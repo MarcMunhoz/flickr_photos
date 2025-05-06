@@ -16,19 +16,22 @@ export function on(evtName, callback) {
 }
 
 async function fetchData(apiParams) {
-  let url = `/api/flickr`
+  const API_BASE_URL = import.meta.env.PROD
+    ? 'https://flickr-public-photos.onrender.com'
+    : '/api';
+
+  let url = `${API_BASE_URL}/flickr`;
 
   if (apiParams && typeof apiParams === 'object') {
-    const queryParams = new URLSearchParams(apiParams).toString()
-    url += `?${queryParams}`
+    const queryParams = new URLSearchParams(apiParams).toString();
+    url += `?${queryParams}`;
   }
 
-  const res = await fetch(url)
-  console.log(res);
-  
-  const data = await res.json()
-  return data
+  const res = await fetch(url);
+  const data = await res.json();
+  return data;
 }
+
 
 
 
