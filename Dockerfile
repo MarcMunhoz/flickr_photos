@@ -8,7 +8,6 @@ LABEL author="Marcelo Munhoz <me@marcelomunhoz.com>" \
   modified="2025-05-06"
 
 ARG APP_PATH=/app
-ENV PORT=2469
 
 WORKDIR ${APP_PATH}
 
@@ -27,4 +26,4 @@ FROM base AS production
 # Expõe portas do Vite e Express
 EXPOSE 2469 3000
 
-CMD ["yarn", "preview", "--host"]
+CMD ["yarn", "preview", "--host", "--port", "2469"]
