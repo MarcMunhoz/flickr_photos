@@ -8,22 +8,23 @@ LABEL author="Marcelo Munhoz <me@marcelomunhoz.com>" \
   modified="2025-05-06"
 
 ARG APP_PATH=/app
-
 WORKDIR ${APP_PATH}
 
 COPY ["./app/package.json", "./app/yarn.lock", "./"]
 
-RUN apk add exa \
+RUN apk add --no-cache exa \
   && yarn \
   && rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /usr/share/man
 
 COPY ./app .
 
+# Stage para desenvolvimento (dev com Vite + Express)
 FROM base AS develop
-CMD [ "yarn", "dev" ]
-
-FROM base AS production
-# Expõe portas do Vite e Express
 EXPOSE 2469 3000
+CMD ["yarn", "dev"]
 
-CMD ["yarn", "preview", "--host", "--port", "2469"]
+# Stage para produção (serve frontend com Express)
+FROM base AS production
+RUN yarn build
+EXPOSE 3000
+CMD ["node", "middleware/server.js"]
