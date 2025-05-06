@@ -2,6 +2,7 @@ services:
   app:
     build:
       context: .
+      target: develop
       no_cache: true
     image: flickr-gallery_img
     volumes:
@@ -11,5 +12,6 @@ services:
     hostname: "flickr-gallery_hst"
     ports:
       - 2469:2469
+      - 3000:3000
     entrypoint: /bin/sh -c "yarn && yarn dev"
     # entrypoint: ["sh", "-c", "sleep 2073600"] debug mode
