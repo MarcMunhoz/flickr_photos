@@ -18,11 +18,15 @@ app.use(cors());
 // 👉 API route
 app.get("/api/flickr", async (req, res) => {
   const params = new URLSearchParams({
-    ...req.query,
-    api_key: process.env.VITE_API_KEY,
+    method: req.query.method,
     format: "json",
     nojsoncallback: "1",
+    api_key: process.env.API_KEY,
   });
+
+  if (req.query.username) {
+    params.append("username", req.query.username);
+  }
 
   const url = `https://api.flickr.com/services/rest?${params.toString()}`;
 
