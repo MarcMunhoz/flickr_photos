@@ -24,12 +24,16 @@ async function fetchData(apiParams) {
   let url = `${API_BASE_URL}/flickr`;
 
   if (apiParams && typeof apiParams === "object") {
-    const queryParams = new URLSearchParams(apiParams).toString();
+    const queryParams = Object.entries(apiParams)
+      .map(([key, value]) => `${key}=${value}`) // Cria a chave-valor sem codificação
+      .join("&");
+
     url += `?${queryParams}`;
   }
 
   const res = await fetch(url);
   const data = await res.json();
+
   return data;
 }
 
