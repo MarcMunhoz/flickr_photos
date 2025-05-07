@@ -19,7 +19,6 @@ export default defineConfig(({ mode }) => {
       extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"],
     },
     server: {
-      allowedHosts: ["flickr-public-photos.onrender.com"],
       port: env.VITE_DEV_PORT,
       proxy: {
         "/api": "http://localhost:3000",
