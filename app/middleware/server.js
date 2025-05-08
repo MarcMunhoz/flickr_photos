@@ -15,6 +15,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
+// Keeps banckend alive
+app.get("/healthz", (_, res) => {
+  res.status(200).send("OK");
+});
+
 // 👉 API route
 app.get("/api/flickr", async (req, res) => {
   const params = new URLSearchParams({
@@ -23,10 +28,10 @@ app.get("/api/flickr", async (req, res) => {
     api_key: process.env.API_KEY,
   });
 
-  // Parâmetros fixos já definidos
+  // Predefined fixed parameters
   const fixedKeys = ["format", "nojsoncallback", "api_key"];
 
-  // Append de todos os outros parâmetros que vierem em req.query
+  // Append all other parameters from req.query
   for (const [key, value] of Object.entries(req.query)) {
     if (!fixedKeys.includes(key)) {
       params.append(key, value);
@@ -45,7 +50,7 @@ app.get("/api/flickr", async (req, res) => {
   }
 });
 
-// 👉 Serve frontend se houver build (produção)
+// 👉 Serve frontend if a build exists (production)
 const distPath = path.resolve(__dirname, "../dist");
 app.use(express.static(distPath));
 
