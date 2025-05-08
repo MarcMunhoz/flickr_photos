@@ -146,6 +146,12 @@ h3 {
   }
 }
 
+.gallery {
+  @media @sm-screens {
+    width: 100%;
+  }
+}
+
 ul {
   list-style-type: none;
   padding: 0;
