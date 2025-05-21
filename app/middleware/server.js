@@ -2,18 +2,24 @@ import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
-app.use(cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow Postman or Allowed list
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error("Not allowed by CORS"));
+    },
+  })
+);
 
 // Keeps banckend alive
 app.get("/healthz", (_, res) => {
@@ -48,15 +54,6 @@ app.get("/api/flickr", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch data from Flickr" });
   }
-});
-
-// 👉 Serve frontend if a build exists (production)
-const distPath = path.resolve(__dirname, "../dist");
-app.use(express.static(distPath));
-
-// SPA fallback
-app.get("*", (_, res) => {
-  res.sendFile(path.resolve(distPath, "index.html"));
 });
 
 app.listen(PORT, () => {
