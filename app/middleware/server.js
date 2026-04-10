@@ -8,6 +8,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+const flickrApiKey = (process.env.API_KEY || "").trim().replace(/^['"]|['"]$/g, "");
 
 app.use(
   cors({
@@ -28,10 +29,18 @@ app.get("/healthz", (_, res) => {
 
 // 👉 API route
 app.get("/api/flickr", async (req, res) => {
+  if (!flickrApiKey) {
+    return res.status(500).json({
+      stat: "fail",
+      code: 500,
+      message: "Missing Flickr API key. Set API_KEY in environment.",
+    });
+  }
+
   const params = new URLSearchParams({
     format: "json",
     nojsoncallback: "1",
-    api_key: process.env.API_KEY,
+    api_key: flickrApiKey,
   });
 
   // Predefined fixed parameters
