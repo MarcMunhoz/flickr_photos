@@ -91,7 +91,7 @@ yarn preview       # Serve built frontend locally
 Create a file `app/.env` based on `app/.env.example`:
 
 ```
-VITE_API_KEY=your_flickr_api_key_here
+API_KEY=your_flickr_api_key_here
 ```
 
 ---
