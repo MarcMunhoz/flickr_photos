@@ -8,7 +8,8 @@
 - The commit title must start with a capital letter.
 - In the commit description, do not insert blank lines between items.
 - The commit title must be only on the first line, without an attached description.
-- The description must be in the commit body, using separate `-m` flags so it does not get appended to the title.
+- The description must be in the commit body, passed as a single `-m` argument with line breaks between bullet items.
+- Do not use multiple `-m` flags for each bullet item in the description.
 - Required format of the commit message:
   `type(scope): Summary message`
   `- Explanatory description 01`
