@@ -1,3 +1,6 @@
+/**
+ * Formats Flickr date values for display and handles missing or invalid input.
+ */
 export function formatPhotoDate(value) {
   const date = new Date(value);
 

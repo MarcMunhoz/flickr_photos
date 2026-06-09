@@ -2,6 +2,9 @@ import { computed, ref } from "vue";
 import { fetchFlickr, FlickrApiError } from "@/api/flickrApi.js";
 import { normalizePhoto } from "@/utils/photo.js";
 
+/**
+ * Owns incremental loading for Flickr's recent public photo stream.
+ */
 export function useRecentPhotos() {
   const allPhotos = ref([]);
   const currentPage = ref(0);
@@ -13,6 +16,9 @@ export function useRecentPhotos() {
 
   const hasMore = computed(() => currentPage.value < totalPages.value);
 
+  /**
+   * Loads the next available page while preventing concurrent or duplicate work.
+   */
   const loadNextPage = async () => {
     if (isLoading.value || !hasMore.value) {
       return;
@@ -35,6 +41,7 @@ export function useRecentPhotos() {
         { signal: request.signal }
       );
 
+      // Flickr pages can shift as new photos arrive, so IDs are deduplicated locally.
       const existingIds = new Set(allPhotos.value.map((photo) => photo.id));
       const loadedPhotos = (data.photos?.photo || [])
         .map(normalizePhoto)
@@ -62,6 +69,9 @@ export function useRecentPhotos() {
     allPhotos.value = allPhotos.value.filter((photo) => photo.id !== photoId);
   };
 
+  /**
+   * Aborts the active request when the recent photos view is destroyed.
+   */
   const cancelLoading = () => {
     activeRequest?.abort();
     activeRequest = null;

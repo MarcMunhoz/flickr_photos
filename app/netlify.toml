@@ -1,8 +1,10 @@
+# Vue Router history mode requires unknown paths to resolve to the application shell.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# Allow the hosted API proxy and remote Flickr images while denying embedded content.
 [[headers]]
   for = "/*"
   [headers.values]

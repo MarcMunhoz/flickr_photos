@@ -2,6 +2,7 @@ import { computed, ref } from "vue";
 import { fetchFlickr, FlickrApiError } from "@/api/flickrApi.js";
 import { normalizePhoto } from "@/utils/photo.js";
 
+// Module-level state lets the navbar search form and Home gallery share one source of truth.
 const photos = ref([]);
 const ownerName = ref("");
 const currentPage = ref(1);
@@ -13,6 +14,9 @@ const hasSearched = ref(false);
 
 let activeRequest = null;
 
+/**
+ * Converts transport and Flickr errors into messages suitable for the gallery UI.
+ */
 function getErrorMessage(requestError) {
   if (requestError instanceof FlickrApiError) {
     return requestError.message;
@@ -25,6 +29,9 @@ function getErrorMessage(requestError) {
   return "Unable to load this Flickr gallery.";
 }
 
+/**
+ * Loads one page for the currently resolved Flickr user.
+ */
 async function fetchGalleryPage(page, signal) {
   const data = await fetchFlickr(
     {
@@ -51,6 +58,10 @@ async function fetchGalleryPage(page, signal) {
   }
 }
 
+/**
+ * Resolves a username to a Flickr user ID, then loads the first gallery page.
+ * Starting a new search cancels the previous request to prevent stale results.
+ */
 async function searchUserGallery(username) {
   const normalizedUsername = username.trim();
 
@@ -97,6 +108,9 @@ async function searchUserGallery(username) {
   }
 }
 
+/**
+ * Navigates within the active user's known page range.
+ */
 async function goToPage(page) {
   if (!userId.value || page < 1 || page > totalPages.value || isLoading.value) {
     return;
@@ -121,6 +135,9 @@ async function goToPage(page) {
   }
 }
 
+/**
+ * Cancels in-flight work when the consuming view is unmounted.
+ */
 function cancelLoading() {
   activeRequest?.abort();
   activeRequest = null;

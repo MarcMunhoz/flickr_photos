@@ -1,9 +1,7 @@
 <template>
   <div>
-    <!-- Top Control Bar -->
     <div class="control-bar mb-4">
       <div class="control-bar-content">
-        <!-- Safe Content Toggle -->
         <div class="safe-content-toggle">
           <button
             :class="['toggle-btn', { active: filters.hideSensitive }]"
@@ -18,7 +16,6 @@
           </button>
         </div>
 
-        <!-- Filters Button -->
         <button
           class="btn btn-light text-start d-flex justify-content-between align-items-center filter-btn"
           type="button"
@@ -34,7 +31,6 @@
       </div>
     </div>
 
-    <!-- Collapsible Filter Panel -->
     <div class="filter-section mb-4">
       <div v-if="showFilters" class="filter-panel">
         <div class="filter-panel-header">
@@ -49,7 +45,6 @@
         </div>
 
         <div class="filter-panel-body">
-          <!-- Date Range Filter -->
           <div class="date-filter-card">
             <div class="filter-field-heading">
               <label class="form-label">Date range</label>
@@ -68,7 +63,6 @@
           </div>
 
           <div class="filter-grid">
-            <!-- Subject/Title Filter -->
             <div class="filter-field">
               <label for="subject" class="form-label">Subject or title</label>
               <input
@@ -80,7 +74,6 @@
               />
             </div>
 
-            <!-- Owner Name Filter -->
             <div class="filter-field">
               <label for="owner" class="form-label">Publisher</label>
               <select
@@ -95,7 +88,6 @@
               </select>
             </div>
 
-            <!-- Tags Filter -->
             <div class="filter-field">
               <label for="tags" class="form-label">Tags</label>
               <input
@@ -109,7 +101,6 @@
           </div>
         </div>
 
-        <!-- Reset Button -->
         <div class="filter-panel-footer">
           <span class="active-filter-summary">
             {{ activeFilterCount ? `${activeFilterCount} active filter(s)` : "No filters applied" }}
@@ -126,7 +117,6 @@
       </div>
     </div>
 
-    <!-- Gallery -->
     <div v-if="filteredPhotos.length > 0" class="gallery-container">
       <div v-for="(photo, index) in filteredPhotos" :key="photo.id" class="gallery-item" :style="getGridStyles(index)">
         <a
@@ -140,7 +130,6 @@
       </div>
     </div>
 
-    <!-- Empty State -->
     <div v-else-if="allPhotos.length > 0" class="empty-state">
       <p class="text-muted">No photos found with the selected filters.</p>
       <button v-if="hasMore" class="btn btn-outline-primary mt-3" type="button" @click="loadNextPage">
@@ -154,7 +143,6 @@
     </div>
     <p v-else-if="isLoading" class="load-feedback text-muted">Loading photos...</p>
 
-    <!-- Modal for Larger View -->
     <div
       v-if="showModal"
       class="modal bg-black d-flex flex-wrap justify-content-center align-items-center position-fixed top-0 start-0 h-100 w-100"
@@ -171,7 +159,6 @@
       </p>
     </div>
 
-    <!-- Back to Top Button -->
     <button
       v-if="showBackToTop"
       @click="scrollToTop"
@@ -210,22 +197,18 @@ export default defineComponent({
       resetFilters,
     } = usePhotoFilters(allPhotos);
 
-    // UI state
+    // View-only state remains local; data fetching and filtering live in composables.
     const showFilters = ref(false);
     const showBackToTop = ref(false);
 
-    // Date range state
     const dateRange = ref(null);
 
-    // Modal state
     const showModal = ref(false);
     const currentPhoto = ref(null);
     const currentPhotoTitle = ref("");
     const currentPhotoOwner = ref("");
 
-    /**
-     * Sync dateRange with filters.dateFrom and filters.dateTo
-     */
+    // The datepicker owns an array model while the filter composable exposes named bounds.
     watch(dateRange, (newRange) => {
       const [dateFrom, dateTo] = Array.isArray(newRange) ? newRange : [];
       filters.value.dateFrom = dateFrom || null;
@@ -237,7 +220,6 @@ export default defineComponent({
       resetFilters();
     };
 
-    // Open modal with the selected image
     const openModal = (evt, src, title, owner) => {
       evt.preventDefault();
       currentPhoto.value = src;
@@ -256,7 +238,7 @@ export default defineComponent({
       }
     };
 
-    // Grid layout styles for mosaic effect
+    // A repeating span pattern creates the dense mosaic without storing layout metadata.
     const getGridStyles = (index) => {
       const spans = [
         { gridColumn: "span 2", gridRow: "span 2" },
@@ -271,13 +253,10 @@ export default defineComponent({
       removePhoto(photoId);
     };
 
-    /**
-     * Handle infinite scroll loading and back-to-top visibility
-     */
+    // The composable guards against concurrent calls, so repeated scroll events are safe.
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
 
-      // Show/hide back to top button
       showBackToTop.value = scrollTop > 300;
 
       if (scrollTop + clientHeight >= scrollHeight - 100) {
@@ -285,9 +264,6 @@ export default defineComponent({
       }
     };
 
-    /**
-     * Scroll back to top
-     */
     const scrollToTop = () => {
       window.scrollTo({
         top: 0,

@@ -16,10 +16,8 @@ const routes = [
     meta: {
       headerTitle: "About",
     },
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ "../views/About.vue"),
+    // Secondary views are loaded only when their route is requested.
+    component: () => import("../views/About.vue"),
   },
   {
     path: "/recent-photos",
@@ -27,9 +25,7 @@ const routes = [
     meta: {
       headerTitle: "Recent public photos on Flickr",
     },
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
+    // Keep the initial Home bundle focused on the username gallery flow.
     component: () => import("../views/Recent.vue"),
   },
 ];

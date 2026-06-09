@@ -18,12 +18,12 @@ RUN apk add --no-cache exa \
 
 COPY ./app .
 
-# Stage para desenvolvimento (dev com Vite + Express)
+# Development stage runs Vite and the Express proxy together.
 FROM base AS develop
 EXPOSE 2469 3000
 CMD ["yarn", "dev"]
 
-# Stage para produção (serve frontend com Express)
+# Optional image build; the primary frontend deployment is handled by Netlify.
 FROM base AS production
 RUN yarn build
 EXPOSE 3000

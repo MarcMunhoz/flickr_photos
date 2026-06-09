@@ -1,5 +1,9 @@
 const DEFAULT_PRODUCTION_API_URL = "https://flickr-public-photos.onrender.com/api";
 
+/**
+ * Represents errors returned by either the application proxy or Flickr.
+ * The optional code preserves the upstream error code for UI-specific handling.
+ */
 export class FlickrApiError extends Error {
   constructor(message, code = null) {
     super(message);
@@ -9,6 +13,7 @@ export class FlickrApiError extends Error {
 }
 
 function getApiBaseUrl() {
+  // Deployments can override the hosted proxy without changing application code.
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL.replace(/\/$/, "");
   }
@@ -16,6 +21,10 @@ function getApiBaseUrl() {
   return import.meta.env.PROD ? DEFAULT_PRODUCTION_API_URL : "/api";
 }
 
+/**
+ * Sends an encoded request to the Flickr proxy and normalizes HTTP/API failures.
+ * An AbortSignal may be supplied by composables that cancel stale requests.
+ */
 export async function fetchFlickr(params, options = {}) {
   const query = new URLSearchParams();
 

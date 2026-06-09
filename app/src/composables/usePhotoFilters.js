@@ -1,5 +1,8 @@
 import { ref, computed } from "vue";
 
+/**
+ * Derives filtered recent photos from a caller-owned reactive collection.
+ */
 export function usePhotoFilters(allPhotos) {
   const filters = ref({
     dateFrom: null,
@@ -10,13 +13,8 @@ export function usePhotoFilters(allPhotos) {
     hideSensitive: false,
   });
 
-  /**
-   * Filter photos based on active filters
-   * @returns {Array} Filtered photos
-   */
   const filteredPhotos = computed(() => {
     return allPhotos.value.filter((photo) => {
-      // Filter by date range
       if (filters.value.dateFrom || filters.value.dateTo) {
         const photoDate = new Date(photo.datetaken);
         if (Number.isNaN(photoDate.getTime())) return false;
@@ -26,13 +24,12 @@ export function usePhotoFilters(allPhotos) {
         }
         if (filters.value.dateTo) {
           const toDate = new Date(filters.value.dateTo);
-          // Add one day to include the entire end date
+          // Use an exclusive next-day boundary so the selected end date is fully included.
           toDate.setDate(toDate.getDate() + 1);
           if (photoDate >= toDate) return false;
         }
       }
 
-      // Filter by subject/title
       if (filters.value.subject) {
         const titleLower = (photo.title || "").toLowerCase();
         if (!titleLower.includes(filters.value.subject.toLowerCase())) {
@@ -40,7 +37,6 @@ export function usePhotoFilters(allPhotos) {
         }
       }
 
-      // Filter by owner name
       if (filters.value.owner) {
         const ownerLower = (photo.ownername || "").toLowerCase();
         const filterOwnerLower = filters.value.owner.toLowerCase();
@@ -49,7 +45,6 @@ export function usePhotoFilters(allPhotos) {
         }
       }
 
-      // Filter by tags
       if (filters.value.tags) {
         const searchTags = filters.value.tags
           .split(",")
@@ -67,10 +62,9 @@ export function usePhotoFilters(allPhotos) {
         if (!hasAllTags) return false;
       }
 
-      // Filter by sensitive content
       if (filters.value.hideSensitive) {
-        // safety_level: 1 = safe, 2 = moderate, 3 = restricted
-        // Also check for tags that indicate adult content
+        // Flickr safety levels: 1 = safe, 2 = moderate, 3 = restricted.
+        // Tags provide a defensive fallback when safety metadata is missing.
         const safetyLevel = parseInt(photo.safety_level, 10) || 1;
         const normalizedTags = (photo.tags || "").toLowerCase();
         const isAdult =
@@ -87,9 +81,7 @@ export function usePhotoFilters(allPhotos) {
     });
   });
 
-  /**
-   * Check if any filters are active (excluding hideSensitive)
-   */
+  // The safety preference is intentionally excluded from the visible filter count.
   const hasActiveFilters = computed(() => {
     return Boolean(
       filters.value.dateFrom ||
@@ -119,9 +111,6 @@ export function usePhotoFilters(allPhotos) {
     return Array.from(authors).sort();
   });
 
-  /**
-   * Reset all filters to default state (excluding hideSensitive)
-   */
   const resetFilters = () => {
     filters.value = {
       dateFrom: null,
@@ -129,7 +118,8 @@ export function usePhotoFilters(allPhotos) {
       subject: "",
       owner: "",
       tags: "",
-      hideSensitive: filters.value.hideSensitive, // Keep the safe preference
+      // Preserve the safety preference when clearing search-specific filters.
+      hideSensitive: filters.value.hideSensitive,
     };
   };
 

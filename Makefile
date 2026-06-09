@@ -4,7 +4,7 @@ dev:
 prod:
 	docker compose prod
 
-# Develop stage only
+# Commands below operate on the development Compose service.
 start:
 	docker compose start
 	

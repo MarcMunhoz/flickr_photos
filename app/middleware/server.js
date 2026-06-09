@@ -12,6 +12,7 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
   .map((origin) => origin.trim())
   .filter(Boolean);
 const flickrApiKey = (process.env.API_KEY || "").trim().replace(/^['"]|['"]$/g, "");
+// Keep the private API key from becoming a general-purpose Flickr proxy.
 const allowedMethods = new Set([
   "flickr.people.findByUsername",
   "flickr.people.getPublicPhotos",
@@ -21,6 +22,7 @@ const allowedMethods = new Set([
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Requests without an Origin header support health checks and local API clients.
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -58,6 +60,7 @@ app.get("/api/flickr", async (req, res) => {
 
   const fixedKeys = ["format", "nojsoncallback", "api_key"];
 
+  // Client parameters are forwarded, but fixed proxy credentials cannot be overridden.
   for (const [key, value] of Object.entries(req.query)) {
     if (!fixedKeys.includes(key)) {
       params.append(key, String(value));

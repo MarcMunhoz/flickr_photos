@@ -30,6 +30,7 @@ export default {
   color: #2c3e50;
 }
 
+// Bootstrap assigns its own control font, so explicitly preserve the app typeface.
 #app button,
 #app input,
 #app select,
