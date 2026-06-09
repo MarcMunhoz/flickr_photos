@@ -1,6 +1,6 @@
 <template>
   <div class="gallery-container">
-    <div v-for="(photo, index) in photos" :key="index" class="gallery-item" :style="getGridStyles(index)">
+    <div v-for="(photo, index) in photos" :key="photo.id" class="gallery-item" :style="getGridStyles(index)">
       <a
         :href="photo.url_o"
         target="_recent"
@@ -8,7 +8,7 @@
         @mouseleave="bordered(false, $event.target, photo.url_o)"
         @click="openModal($event, photo.url_o, photo.title, photo.ownername)"
       >
-        <img :src="photo.url_z" :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `" lazy="loading" class="border-4 border-unicorn gallery-image" />
+        <img :src="photo.imageUrl" :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `" loading="lazy" class="border-4 border-unicorn gallery-image" @error="handleImageError(photo.id)" />
       </a>
     </div>
 
@@ -64,28 +64,45 @@ export default defineComponent({
     };
 
     let rawData = Object;
+    let currentPage = ref(1);
     let fetchParams = {
       method: "flickr.photos.getRecent",
       extras: ["url_z", "url_o", "date_taken", "owner_name"],
       per_page: 35,
+      page: 1,
     };
 
-    const fetchRecent = async () => {
+    const fetchRecent = async (pageNum = 1) => {
       try {
-        rawData = {};
+        fetchParams.page = pageNum;
         rawData = await fetchData(fetchParams);
 
-        for (let index = 0; index < rawData.photos.photo.length; index++) {
-          photos.value.push(rawData.photos.photo[index]);
+        if (rawData.photos && rawData.photos.photo) {
+          // Filtra apenas fotos com URLs válidas
+          for (let index = 0; index < rawData.photos.photo.length; index++) {
+            const photo = rawData.photos.photo[index];
+            // Usa url_z como padrão, fallback para url_o, e só adiciona se tiver uma URL válida
+            if (photo.url_z || photo.url_o) {
+              photo.imageUrl = photo.url_z || photo.url_o;
+              photos.value.push(photo);
+            }
+          }
         }
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error fetching photos:", error);
+      }
+    };
+
+    const handleImageError = (photoId) => {
+      // Remove a foto do array quando a imagem falha ao carregar
+      photos.value = photos.value.filter((photo) => photo.id !== photoId);
     };
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
       if (scrollTop + clientHeight >= scrollHeight - 5) {
-        fetchParams.per_page += 35; // Incrementa 35
-        fetchRecent(); // Carrega novas fotos
+        currentPage.value += 1;
+        fetchRecent(currentPage.value); // Carrega a próxima página
       }
     };
 
@@ -108,6 +125,8 @@ export default defineComponent({
       currentPhotoOwner,
       openModal,
       getGridStyles,
+      currentPage,
+      handleImageError,
     };
   },
 });

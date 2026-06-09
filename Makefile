@@ -1,5 +1,5 @@
 dev:
-	docker compose up -d
+	docker compose up -d --build
 
 prod:
 	docker compose prod
