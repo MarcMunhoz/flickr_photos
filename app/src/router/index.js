@@ -6,10 +6,16 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
+    meta: {
+      headerTitle: "Public Flickr Gallery",
+    },
   },
   {
     path: "/about",
     name: "About",
+    meta: {
+      headerTitle: "About",
+    },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -18,6 +24,9 @@ const routes = [
   {
     path: "/recent-photos",
     name: "Recent Photos",
+    meta: {
+      headerTitle: "Recent public photos on Flickr",
+    },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
