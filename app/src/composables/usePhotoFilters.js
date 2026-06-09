@@ -1,6 +1,6 @@
 import { ref, computed } from "vue";
 
-export function usePhotoFilters() {
+export function usePhotoFilters(allPhotos) {
   const filters = ref({
     dateFrom: null,
     dateTo: null,
@@ -9,8 +9,6 @@ export function usePhotoFilters() {
     tags: "",
     hideSensitive: false,
   });
-
-  const allPhotos = ref([]);
 
   /**
    * Filter photos based on active filters
@@ -21,6 +19,7 @@ export function usePhotoFilters() {
       // Filter by date range
       if (filters.value.dateFrom || filters.value.dateTo) {
         const photoDate = new Date(photo.datetaken);
+        if (Number.isNaN(photoDate.getTime())) return false;
         if (filters.value.dateFrom) {
           const fromDate = new Date(filters.value.dateFrom);
           if (photoDate < fromDate) return false;
@@ -72,13 +71,15 @@ export function usePhotoFilters() {
       if (filters.value.hideSensitive) {
         // safety_level: 1 = safe, 2 = moderate, 3 = restricted
         // Also check for tags that indicate adult content
-        const safetyLevel = parseInt(photo.safety_level) || 1;
-        const isAdult = photo.ispublic === "0" || 
-                       (photo.tags && photo.tags.includes("adult")) ||
-                       (photo.tags && photo.tags.includes("porn")) ||
-                       (photo.tags && photo.tags.includes("nsfw")) ||
-                       safetyLevel > 1;
-        
+        const safetyLevel = parseInt(photo.safety_level, 10) || 1;
+        const normalizedTags = (photo.tags || "").toLowerCase();
+        const isAdult =
+          photo.ispublic === "0" ||
+          normalizedTags.includes("adult") ||
+          normalizedTags.includes("porn") ||
+          normalizedTags.includes("nsfw") ||
+          safetyLevel > 1;
+
         if (isAdult) return false;
       }
 
@@ -90,13 +91,32 @@ export function usePhotoFilters() {
    * Check if any filters are active (excluding hideSensitive)
    */
   const hasActiveFilters = computed(() => {
-    return (
+    return Boolean(
       filters.value.dateFrom ||
       filters.value.dateTo ||
       filters.value.subject ||
       filters.value.owner ||
       filters.value.tags
     );
+  });
+
+  const activeFilterCount = computed(() => {
+    let count = 0;
+    if (filters.value.dateFrom || filters.value.dateTo) count++;
+    if (filters.value.subject) count++;
+    if (filters.value.owner) count++;
+    if (filters.value.tags) count++;
+    return count;
+  });
+
+  const uniqueAuthors = computed(() => {
+    const authors = new Set(
+      allPhotos.value
+        .map((photo) => photo.ownername)
+        .filter((name) => name && name.trim())
+    );
+
+    return Array.from(authors).sort();
   });
 
   /**
@@ -115,9 +135,10 @@ export function usePhotoFilters() {
 
   return {
     filters,
-    allPhotos,
     filteredPhotos,
     hasActiveFilters,
+    activeFilterCount,
+    uniqueAuthors,
     resetFilters,
   };
 }

@@ -7,6 +7,8 @@
         <div class="safe-content-toggle">
           <button
             :class="['toggle-btn', { active: filters.hideSensitive }]"
+            type="button"
+            :aria-pressed="filters.hideSensitive"
             @click="filters.hideSensitive = !filters.hideSensitive"
             :title="filters.hideSensitive ? 'Hiding sensitive content' : 'Showing all content'"
           >
@@ -20,6 +22,7 @@
         <button
           class="btn btn-light text-start d-flex justify-content-between align-items-center filter-btn"
           type="button"
+          :aria-expanded="showFilters"
           @click="showFilters = !showFilters"
         >
           <span>
@@ -115,6 +118,7 @@
             v-if="activeFilterCount > 0"
             @click="clearFilters"
             class="clear-filters-btn"
+            type="button"
           >
             Clear filters
           </button>
@@ -126,13 +130,12 @@
     <div v-if="filteredPhotos.length > 0" class="gallery-container">
       <div v-for="(photo, index) in filteredPhotos" :key="photo.id" class="gallery-item" :style="getGridStyles(index)">
         <a
-          :href="photo.url_o"
-          target="_recent"
-          @mouseover="bordered(true, $event.target, photo.url_o)"
-          @mouseleave="bordered(false, $event.target, photo.url_o)"
-          @click="openModal($event, photo.url_o, photo.title, photo.ownername)"
+          :href="photo.url_o || photo.imageUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click="openModal($event, photo.url_o || photo.imageUrl, photo.title, photo.ownername)"
         >
-          <img :src="photo.imageUrl" :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `" loading="lazy" class="border-4 border-unicorn gallery-image" @error="handleImageError(photo.id)" />
+          <img :src="photo.imageUrl" :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `" :alt="photo.title || 'Recent Flickr photo'" loading="lazy" class="border-4 border-unicorn gallery-image" @error="handleImageError(photo.id)" />
         </a>
       </div>
     </div>
@@ -140,15 +143,28 @@
     <!-- Empty State -->
     <div v-else-if="allPhotos.length > 0" class="empty-state">
       <p class="text-muted">No photos found with the selected filters.</p>
+      <button v-if="hasMore" class="btn btn-outline-primary mt-3" type="button" @click="loadNextPage">
+        Search more recent photos
+      </button>
     </div>
+
+    <div v-if="error" class="load-feedback text-danger">
+      <p>{{ error }}</p>
+      <button class="btn btn-outline-danger btn-sm" type="button" @click="loadNextPage">Try again</button>
+    </div>
+    <p v-else-if="isLoading" class="load-feedback text-muted">Loading photos...</p>
 
     <!-- Modal for Larger View -->
     <div
       v-if="showModal"
       class="modal bg-black d-flex flex-wrap justify-content-center align-items-center position-fixed top-0 start-0 h-100 w-100"
-      style="--bs-bg-opacity: 0.8; font-family: var(--bs-body-font-family)"
-      @click="showModal = false"
+      style="--bs-bg-opacity: 0.8"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Photo preview"
+      @click.self="closeModal"
     >
+      <button class="modal-close-btn" type="button" aria-label="Close photo preview" @click="closeModal">×</button>
       <img :src="currentPhoto" alt="Large view" class="modal-image" />
       <p class="text-light fs-4 w-100">
         <span v-if="currentPhotoTitle.length">{{ currentPhotoTitle }} - </span>by <span class="gradient-flickr text-uppercase">{{ currentPhotoOwner }}</span>
@@ -160,6 +176,7 @@
       v-if="showBackToTop"
       @click="scrollToTop"
       class="back-to-top-btn"
+      type="button"
       title="Back to top"
     >
       ↑
@@ -168,15 +185,30 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from "vue";
-import { fetchData, theDate, bordered } from "@/utils/usefulFunctions.js";
+import { defineComponent, ref, onMounted, onUnmounted, watch } from "vue";
 import { usePhotoFilters } from "@/composables/usePhotoFilters.js";
+import { useRecentPhotos } from "@/composables/useRecentPhotos.js";
 
 export default defineComponent({
   name: "RecentPhotos",
   setup() {
-    // Use the photo filters composable
-    const { filters, allPhotos, filteredPhotos, hasActiveFilters, resetFilters } = usePhotoFilters();
+    const {
+      allPhotos,
+      error,
+      hasMore,
+      isLoading,
+      loadNextPage,
+      removePhoto,
+      cancelLoading,
+    } = useRecentPhotos();
+    const {
+      filters,
+      filteredPhotos,
+      hasActiveFilters,
+      activeFilterCount,
+      uniqueAuthors,
+      resetFilters,
+    } = usePhotoFilters(allPhotos);
 
     // UI state
     const showFilters = ref(false);
@@ -188,8 +220,8 @@ export default defineComponent({
     // Modal state
     const showModal = ref(false);
     const currentPhoto = ref(null);
-    const currentPhotoTitle = ref(String);
-    const currentPhotoOwner = ref(String);
+    const currentPhotoTitle = ref("");
+    const currentPhotoOwner = ref("");
 
     /**
      * Sync dateRange with filters.dateFrom and filters.dateTo
@@ -205,37 +237,23 @@ export default defineComponent({
       resetFilters();
     };
 
-    /**
-     * Count how many filters are currently active (excluding hideSensitive)
-     */
-    const activeFilterCount = computed(() => {
-      let count = 0;
-      if (filters.value.dateFrom || filters.value.dateTo) count++;
-      if (filters.value.subject) count++;
-      if (filters.value.owner) count++;
-      if (filters.value.tags) count++;
-      return count;
-    });
-
-    /**
-     * Get unique authors from loaded photos
-     */
-    const uniqueAuthors = computed(() => {
-      const authors = new Set(
-        allPhotos.value
-          .map((photo) => photo.ownername)
-          .filter((name) => name && name.trim().length > 0)
-      );
-      return Array.from(authors).sort();
-    });
-
     // Open modal with the selected image
     const openModal = (evt, src, title, owner) => {
       evt.preventDefault();
       currentPhoto.value = src;
-      currentPhotoTitle.value = title;
-      currentPhotoOwner.value = owner;
+      currentPhotoTitle.value = title || "";
+      currentPhotoOwner.value = owner || "";
       src && (showModal.value = true);
+    };
+
+    const closeModal = () => {
+      showModal.value = false;
+    };
+
+    const handleKeydown = (event) => {
+      if (event.key === "Escape" && showModal.value) {
+        closeModal();
+      }
     };
 
     // Grid layout styles for mosaic effect
@@ -249,43 +267,8 @@ export default defineComponent({
       return spans[index % spans.length];
     };
 
-    // Fetch configuration
-    let rawData = Object;
-    let currentPage = ref(1);
-    let fetchParams = {
-      method: "flickr.photos.getRecent",
-      extras: ["url_z", "url_o", "date_taken", "owner_name", "tags", "safety_level"],
-      per_page: 35,
-      page: 1,
-    };
-
-    /**
-     * Fetch recent photos from Flickr API
-     */
-    const fetchRecent = async (pageNum = 1) => {
-      try {
-        fetchParams.page = pageNum;
-        rawData = await fetchData(fetchParams);
-
-        if (rawData.photos && rawData.photos.photo) {
-          for (let index = 0; index < rawData.photos.photo.length; index++) {
-            const photo = rawData.photos.photo[index];
-            if (photo.url_z || photo.url_o) {
-              photo.imageUrl = photo.url_z || photo.url_o;
-              allPhotos.value.push(photo);
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching photos:", error);
-      }
-    };
-
-    /**
-     * Handle failed image loads by removing from collection
-     */
     const handleImageError = (photoId) => {
-      allPhotos.value = allPhotos.value.filter((photo) => photo.id !== photoId);
+      removePhoto(photoId);
     };
 
     /**
@@ -297,12 +280,8 @@ export default defineComponent({
       // Show/hide back to top button
       showBackToTop.value = scrollTop > 300;
 
-      // Disable infinite scroll when filters are active
-      if (hasActiveFilters.value) return;
-
-      if (scrollTop + clientHeight >= scrollHeight - 5) {
-        currentPage.value += 1;
-        fetchRecent(currentPage.value);
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        loadNextPage();
       }
     };
 
@@ -317,12 +296,15 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      fetchRecent();
+      loadNextPage();
       window.addEventListener("scroll", handleScroll);
+      window.addEventListener("keydown", handleKeydown);
     });
 
     onUnmounted(() => {
+      cancelLoading();
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("keydown", handleKeydown);
     });
 
     return {
@@ -334,8 +316,6 @@ export default defineComponent({
       uniqueAuthors,
       clearFilters,
       dateRange,
-      theDate,
-      bordered,
       showFilters,
       showBackToTop,
       showModal,
@@ -343,9 +323,13 @@ export default defineComponent({
       currentPhotoTitle,
       currentPhotoOwner,
       openModal,
+      closeModal,
       getGridStyles,
-      currentPage,
+      error,
+      hasMore,
+      isLoading,
       handleImageError,
+      loadNextPage,
       scrollToTop,
     };
   },
@@ -391,7 +375,6 @@ export default defineComponent({
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: Arial, Helvetica, sans-serif;
   font-weight: 600;
   color: #495057;
 }
@@ -436,7 +419,6 @@ export default defineComponent({
   border-radius: 10px;
   padding: 0.65rem 1rem;
   background: #f4f6f8;
-  font-family: Arial, Helvetica, sans-serif;
   font-weight: 600;
   color: #343a40;
 }
@@ -460,7 +442,6 @@ export default defineComponent({
   border-radius: 16px;
   box-shadow: 0 18px 45px rgba(31, 41, 55, 0.14);
   color: #2c3440;
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 .filter-panel-header {
@@ -573,7 +554,7 @@ export default defineComponent({
   padding: 0.65rem 2.75rem !important;
   font-size: 0.875rem !important;
   color: #343a40 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
+  font-family: Kuaile !important;
 }
 
 :deep(.date-picker-input:focus) {
@@ -598,7 +579,7 @@ export default defineComponent({
   border: 1px solid #dfe3ea;
   border-radius: 12px;
   box-shadow: 0 18px 48px rgba(31, 41, 55, 0.2);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Kuaile;
 }
 
 :deep(.dp__action_select) {
@@ -669,9 +650,33 @@ export default defineComponent({
   object-fit: cover;
 }
 
+.gallery-image:hover {
+  border-style: solid;
+}
+
 .modal-image {
   max-width: 90%;
   max-height: 90%;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  color: white;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.load-feedback {
+  width: 90%;
+  margin: 1.5rem auto;
 }
 
 .back-to-top-btn {
