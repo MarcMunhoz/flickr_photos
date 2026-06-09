@@ -66,7 +66,6 @@ export default defineComponent({
 <style scoped>
 .navbar {
   min-height: 68px;
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 .container-fluid {

@@ -30,6 +30,13 @@ export default {
   color: #2c3e50;
 }
 
+#app button,
+#app input,
+#app select,
+#app textarea {
+  font-family: Kuaile;
+}
+
 #nav {
   padding: 30px;
 

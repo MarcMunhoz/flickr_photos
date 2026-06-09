@@ -14,9 +14,3 @@ export default {
   },
 };
 </script>
-
-<style lang="less">
-.recent {
-  font-family: Arial, Helvetica, sans-serif;
-}
-</style>
