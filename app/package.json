@@ -26,8 +26,7 @@
     "tmp": "^0.2.4",
     "vue": "^3.2.41",
     "vue-router": "^4.0.0-0",
-    "@vuepic/vue-datepicker": "^7.4.1",
-    "vue3-lazyload": "^0.2.2-beta"
+    "@vuepic/vue-datepicker": "^7.4.1"
   },
   "devDependencies": {
     "@popperjs/core": "^2.11.6",
