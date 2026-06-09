@@ -1,7 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-// https://vitejs.dev/config/
 const path = await import("path");
 
 export default defineConfig(({ mode }) => {
@@ -20,9 +19,11 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: env.VITE_DEV_PORT,
+      // Browser requests use the same /api path in development and production.
       proxy: {
         "/api": "http://localhost:3000",
       },
+      // Polling keeps file watching reliable when the app runs through Docker volumes.
       watch: {
         usePolling: true,
       },

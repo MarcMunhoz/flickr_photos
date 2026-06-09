@@ -1,10 +1,10 @@
 dev:
-	docker compose up -d
+	docker compose up -d --build
 
 prod:
 	docker compose prod
 
-# Develop stage only
+# Commands below operate on the development Compose service.
 start:
 	docker compose start
 	

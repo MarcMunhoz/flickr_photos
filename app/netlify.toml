@@ -1,10 +1,16 @@
+# Vue Router history mode requires unknown paths to resolve to the application shell.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Allow the hosted API proxy and remote Flickr images while denying embedded content.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy= "default-src https:"
-    Feature-Policy= "microphone 'none'; geolocation 'none'"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://flickr-public-photos.onrender.com; font-src 'self' data:; img-src 'self' data: https:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'self'; frame-ancestors 'none'"
+    Permissions-Policy = "microphone=(), geolocation=()"
     Referrer-Policy = "no-referrer-when-downgrade"
     Strict-Transport-Security = "max-age=15552000; includeSubDomains; preload"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"

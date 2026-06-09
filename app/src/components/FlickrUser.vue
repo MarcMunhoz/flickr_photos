@@ -1,87 +1,46 @@
 <template>
-  <div class="d-flex" role="search">
+  <form class="d-flex" role="search" @submit.prevent="submitSearch">
     <input
       class="user-name form-control me-2"
-      :class="{ 'is-invalid': error == 'User not found. Please, check it out.' }"
-      style="font-family: var(--bs-body-font-family)"
+      :class="{ 'is-invalid': error }"
       type="search"
       placeholder="Flickr user name"
       aria-label="Search"
-      v-model="user_name"
-      @keyup.enter="getUserID()"
+      v-model="username"
       autofocus
     />
-    <button class="btn btn-outline-primary" type="submit" @click="getUserID()">Search</button>
+    <button class="btn btn-outline-primary" type="submit" :disabled="isLoading">
+      {{ isLoading ? "Loading..." : "Search" }}
+    </button>
 
-    <div class="alert alert-danger fixed-bottom text-uppercase" style="font-family: var(--bs-body-font-family)" role="alert" v-if="error">
+    <div class="alert alert-danger fixed-bottom text-uppercase" role="alert" v-if="error">
       {{ error }}
     </div>
-  </div>
+  </form>
 </template>
 
 <script>
 import { defineComponent, ref } from "vue";
-import { emit, fetchData } from "@/utils/usefulFunctions.js";
+import { useUserGallery } from "@/composables/useUserGallery.js";
 
 export default defineComponent({
   name: "FlickrUser",
   setup() {
-    // App variables
-    const user_name = ref(String);
-    const user_id = ref(Array);
-    const error = ref(String);
+    const username = ref("");
+    const { error, isLoading, searchUserGallery } = useUserGallery();
 
-    // Default values
-    user_name.value = "";
-    user_id.value = [];
-    error.value = null;
-
-    // Methods
-    const getUserID = async () => {
-      if (user_name.value.length === 0) {
-        return (error.value = "Please type a username.");
+    const submitSearch = async () => {
+      const succeeded = await searchUserGallery(username.value);
+      if (succeeded) {
+        username.value = "";
       }
-
-      let rawData = Object;
-
-      const fetchParams = {
-        method: "flickr.people.findByUsername",
-        username: user_name.value,
-      };
-
-      rawData = {};
-      try {
-        rawData = await fetchData(fetchParams);
-
-        error.value = null;
-        user_id.value = rawData.user.id;
-
-        // Emits the user ID to the FlickrPhotos component
-        const spinner = document.querySelector(".spinner");
-        spinner.classList.remove("visually-hidden");
-
-        const gallery = document.querySelector(".gallery");
-        gallery.classList.add("visually-hidden");
-        emit("userID", user_id.value);
-      } catch (err) {
-        // Errors handling
-        if (err == "TypeError: Failed to fetch") {
-          return (error.value = "Connection error. Try it later.");
-        } else {
-          return (error.value = "User not found. Please, check it out.");
-        }
-      }
-
-      // Cleaning up input field and old user iD from app
-      user_name.value = "";
-      user_id.value = null;
     };
 
-    // Exposing data to template
     return {
-      getUserID,
       error,
-      user_name,
+      isLoading,
+      submitSearch,
+      username,
     };
   },
 });
