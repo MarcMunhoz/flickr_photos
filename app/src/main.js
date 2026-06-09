@@ -5,5 +5,10 @@ import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@/assets/css/defaultStyles.less"
 import VueLazyLoad from "vue3-lazyload";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
-createApp(App).use(router, VueLazyLoad).mount("#app");
+createApp(App)
+  .use(router, VueLazyLoad)
+  .component("VueDatePicker", VueDatePicker)
+  .mount("#app");
