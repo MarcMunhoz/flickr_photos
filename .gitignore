@@ -6,11 +6,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-.codex
 
 node_modules
 dist
 dist-ssr
+app/cypress/downloads
+app/cypress/screenshots
+app/cypress/videos
 *.local
 .env*
 

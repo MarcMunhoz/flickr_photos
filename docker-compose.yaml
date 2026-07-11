@@ -16,3 +16,20 @@ services:
     entrypoint: /bin/sh -c "yarn && yarn dev"
     # Replace the entrypoint with a long sleep when inspecting the container manually.
     # entrypoint: ["sh", "-c", "sleep 2073600"]
+
+  e2e:
+    profiles:
+      - test
+    build:
+      context: .
+      target: test
+      no_cache: true
+    image: flickr-gallery_test_img
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    environment:
+      CYPRESS_BASE_URL: http://app:2469
+    depends_on:
+      - app
+    entrypoint: ["yarn", "test:e2e"]
