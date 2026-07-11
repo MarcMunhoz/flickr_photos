@@ -1,0 +1,6 @@
+app/node_modules
+app/dist
+app/cypress/downloads
+app/cypress/screenshots
+app/cypress/videos
+.git
