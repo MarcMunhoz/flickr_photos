@@ -101,7 +101,26 @@ yarn dev:api     Start only the Express middleware
 yarn build       Create the production frontend bundle
 yarn preview     Preview the production frontend bundle
 yarn start       Start only the Express middleware
+yarn test:unit   Run Vitest unit tests
+yarn test:e2e    Run Cypress end-to-end tests
 ```
+
+### Validation
+
+Run validation from the containerized environment to match the documented local
+runtime:
+
+```bash
+docker compose up -d --build
+docker compose exec -T app yarn audit --groups dependencies --groups devDependencies
+docker compose exec -T app yarn test:unit
+docker compose exec -T app yarn build
+docker compose --profile test run --rm e2e
+docker compose logs --no-color --tail 160 app
+```
+
+Cypress uses deterministic fixtures and intercepted Flickr proxy responses for
+repeatable regression coverage.
 
 ---
 

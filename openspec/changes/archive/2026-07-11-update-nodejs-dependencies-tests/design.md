@@ -32,7 +32,7 @@ The change is a maintenance and validation initiative. It must reduce dependency
    `app/yarn.lock` is present and `package.json` already uses Yarn-compatible `resolutions`. All dependency work should update that lockfile only and must not introduce `package-lock.json` or `pnpm-lock.yaml`. Alternative considered: migrate to a newer package manager. That is outside scope and increases risk without solving the requested maintenance problem.
 
 3. **Restrict Node runtime updates to the Node 22 line.**
-   The Dockerfile uses `node:22-alpine`, so runtime changes may move to a newer Node 22 patch or minor image tag if needed, but must not cross to Node 23 or later. Alternative considered: upgrade to the latest Node major. That could introduce unrelated compatibility changes and violates the runtime constraint.
+   Runtime configuration must stay on Node 22 and can use the OS base that best fits the execution target. The Dockerfile separates normal app images from the Cypress test image so browser runtime libraries do not inflate production deploys. Alternative considered: upgrade to the latest Node major. That could introduce unrelated compatibility changes and violates the runtime constraint.
 
 4. **Use Vitest for unit tests and Cypress for E2E tests.**
    Vite is the application build tool, making Vitest the compatible unit test default. Cypress is mandated for E2E coverage and should exercise routes through the running app with network interception for Flickr proxy responses where deterministic tests are needed. Alternative considered: Jest for all tests. Jest would add more configuration overhead for Vite and is lower priority under the requested tool selection policy.
