@@ -1,0 +1,28 @@
+{
+  "stat": "ok",
+  "photos": {
+    "page": 1,
+    "pages": 1,
+    "perpage": 12,
+    "total": "2",
+    "photo": [
+      {
+        "id": "gallery-1",
+        "title": "Blue bridge",
+        "url_z": "/favicon.ico",
+        "url_o": "/favicon.ico",
+        "datetaken": "2026-07-10 08:00:00",
+        "ownername": "Alice",
+        "tags": "bridge city blue"
+      },
+      {
+        "id": "gallery-2",
+        "title": "Evening skyline",
+        "url_z": "/favicon.ico",
+        "datetaken": "2026-07-11 19:30:00",
+        "ownername": "Alice",
+        "tags": "skyline night"
+      }
+    ]
+  }
+}

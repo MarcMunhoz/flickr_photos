@@ -1,0 +1,40 @@
+{
+  "stat": "ok",
+  "photos": {
+    "page": 1,
+    "pages": 1,
+    "perpage": 35,
+    "total": "3",
+    "photo": [
+      {
+        "id": "recent-1",
+        "title": "Mountain sunrise",
+        "url_z": "/favicon.ico",
+        "url_o": "/favicon.ico",
+        "datetaken": "2026-07-10 08:00:00",
+        "ownername": "Alice",
+        "tags": "nature sunrise mountain",
+        "safety_level": "1"
+      },
+      {
+        "id": "recent-2",
+        "title": "City night",
+        "url_z": "/favicon.ico",
+        "url_o": "/favicon.ico",
+        "datetaken": "2026-07-11 21:00:00",
+        "ownername": "Bob",
+        "tags": "city night",
+        "safety_level": "1"
+      },
+      {
+        "id": "recent-3",
+        "title": "Restricted upload",
+        "url_z": "/favicon.ico",
+        "datetaken": "2026-07-12 12:00:00",
+        "ownername": "Carol",
+        "tags": "portrait nsfw",
+        "safety_level": "3"
+      }
+    ]
+  }
+}

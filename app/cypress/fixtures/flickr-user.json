@@ -1,0 +1,9 @@
+{
+  "stat": "ok",
+  "user": {
+    "id": "alice-user-id",
+    "username": {
+      "_content": "alice"
+    }
+  }
+}
