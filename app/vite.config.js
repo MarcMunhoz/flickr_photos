@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: env.VITE_DEV_PORT,
+      allowedHosts: ["localhost", "127.0.0.1", "app", "flickr-gallery_hst"],
       // Browser requests use the same /api path in development and production.
       proxy: {
         "/api": "http://localhost:3000",
@@ -38,6 +39,13 @@ export default defineConfig(({ mode }) => {
           `,
         },
       },
+    },
+    test: {
+      environment: "jsdom",
+      globals: true,
+      setupFiles: ["./src/test/setup.js"],
+      clearMocks: true,
+      restoreMocks: true,
     },
   };
 });
