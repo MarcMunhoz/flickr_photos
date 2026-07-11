@@ -2,7 +2,7 @@ FROM node:22-bookworm-slim AS base
 
 LABEL author="Marcelo Munhoz <me@marcelomunhoz.com>" \
   description="WebApp who displays public photos from a Flickr account" \
-  version="1.1.0" \
+  version="1.2.0" \
   date_created="2021-08-26" \
   deploy="2022-11-11" \
   modified="2026-06-09"

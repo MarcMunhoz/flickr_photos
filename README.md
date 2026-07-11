@@ -1,6 +1,6 @@
 # 📸 Flickr Photos - Public Gallery Viewer
 
-[![Version](https://img.shields.io/badge/version-1.1.0-0462dc)](https://github.com/MarcMunhoz/flickr_photos)
+[![Version](https://img.shields.io/badge/version-1.2.0-0462dc)](https://github.com/MarcMunhoz/flickr_photos)
 [![Vue](https://img.shields.io/badge/Vue-3-42b883?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)](https://vite.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
