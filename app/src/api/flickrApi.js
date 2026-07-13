@@ -1,4 +1,4 @@
-const DEFAULT_PRODUCTION_API_URL = "https://flickr-public-photos.onrender.com/api";
+const DEFAULT_API_BASE_URL = "/api";
 
 /**
  * Represents errors returned by either the application proxy or Flickr.
@@ -18,7 +18,7 @@ function getApiBaseUrl() {
     return import.meta.env.VITE_API_BASE_URL.replace(/\/$/, "");
   }
 
-  return import.meta.env.PROD ? DEFAULT_PRODUCTION_API_URL : "/api";
+  return DEFAULT_API_BASE_URL;
 }
 
 /**

@@ -1,14 +1,23 @@
+[build]
+  functions = "netlify/functions"
+
+# Route Flickr proxy requests to the same-site Netlify Function before the SPA fallback.
+[[redirects]]
+  from = "/api/flickr"
+  to = "/.netlify/functions/flickr"
+  status = 200
+
 # Vue Router history mode requires unknown paths to resolve to the application shell.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Allow the hosted API proxy and remote Flickr images while denying embedded content.
+# Allow same-origin API calls and remote Flickr images while denying embedded content.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://flickr-public-photos.onrender.com; font-src 'self' data:; img-src 'self' data: https:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self'; font-src 'self' data:; img-src 'self' data: https:; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'self'; frame-ancestors 'none'"
     Permissions-Policy = "microphone=(), geolocation=()"
     Referrer-Policy = "no-referrer-when-downgrade"
     Strict-Transport-Security = "max-age=15552000; includeSubDomains; preload"
