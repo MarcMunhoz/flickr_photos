@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import handler from "./flickr.js";
+import handler from "../../netlify/functions/flickr.js";
 
 function flickrResponse(body) {
   return {
