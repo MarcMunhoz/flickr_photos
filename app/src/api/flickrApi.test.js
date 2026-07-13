@@ -52,6 +52,17 @@ describe("Flickr API client", () => {
     expect(fetchMock.mock.calls[0][0]).toContain("https://api.example.test/api/flickr?");
   });
 
+  it("uses the same-origin API route in production by default", async () => {
+    vi.stubEnv("PROD", true);
+    const fetchMock = vi.fn().mockResolvedValue(mockJsonResponse({ stat: "ok" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchFlickr({ method: "flickr.photos.getRecent" });
+
+    expect(fetchMock.mock.calls[0][0]).toContain("/api/flickr?");
+    expect(fetchMock.mock.calls[0][0]).not.toContain("onrender.com");
+  });
+
   it("forwards an abort signal to fetch", async () => {
     const signal = new AbortController().signal;
     const fetchMock = vi.fn().mockResolvedValue(mockJsonResponse({ stat: "ok" }));

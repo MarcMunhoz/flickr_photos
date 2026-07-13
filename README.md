@@ -1,6 +1,6 @@
 # 📸 Flickr Photos - Public Gallery Viewer
 
-[![Version](https://img.shields.io/badge/version-1.2.0-0462dc)](https://github.com/MarcMunhoz/flickr_photos)
+[![Version](https://img.shields.io/badge/version-1.3.0-0462dc)](https://github.com/MarcMunhoz/flickr_photos)
 [![Vue](https://img.shields.io/badge/Vue-3-42b883?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)](https://vite.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
@@ -21,21 +21,23 @@ filters for dates, titles, publishers, tags, and safe content.
 - Date range, title, publisher, tag, and safe-content filters
 - Photo details and links to the original Flickr pages
 - Responsive interface with custom Flickr-inspired styling
-- Express API proxy that keeps the Flickr API key on the server
+- Netlify Function API proxy that keeps the Flickr API key on the server
 
 ---
 
 ## 🏗️ Architecture
 
-The Vue frontend communicates with an Express middleware instead of accessing
-the Flickr API directly. The middleware validates supported Flickr methods,
-injects the private API key, and returns the upstream response.
+The Vue frontend communicates with a same-origin Flickr API proxy instead of
+accessing the Flickr API directly. In production, Netlify routes `/api/flickr`
+to a native Netlify Function that validates supported Flickr methods, injects
+the private API key, and returns the upstream response.
 
-Production uses separate deployments:
+Production uses a single Netlify deployment surface:
 
 - The frontend is built by Netlify with `yarn build`
-- The API proxy is hosted separately and can be configured with
-  `VITE_API_BASE_URL`
+- The API proxy runs as a Netlify Function in the same site
+- `VITE_API_BASE_URL` remains available as an explicit rollback or alternate
+  environment override
 - Docker Compose remains available for local development
 
 ---
@@ -47,6 +49,7 @@ Production uses separate deployments:
 - 📅 [Vue Datepicker](https://vue3datepicker.com/)
 - 🎨 [Bootstrap](https://getbootstrap.com/) and Less
 - 🌐 [Express](https://expressjs.com/)
+- ▲ [Netlify Functions](https://docs.netlify.com/build/functions/overview/)
 - 🐳 Docker and Docker Compose
 
 ---
@@ -57,6 +60,7 @@ Production uses separate deployments:
 .
 ├── app/
 │   ├── middleware/          # Express proxy for the Flickr API
+│   ├── netlify/functions/   # Netlify Function proxy for production
 │   ├── public/              # Static assets
 │   ├── src/
 │   │   ├── api/             # Frontend API client
@@ -81,9 +85,10 @@ Docker and Docker Compose are required for the containerized environment:
 docker compose up --build
 ```
 
-The frontend is served at [http://localhost:2469](http://localhost:2469), and
-the API proxy is available at
-[http://localhost:3000/api/flickr](http://localhost:3000/api/flickr).
+The frontend is served at [http://localhost:2469](http://localhost:2469). The
+local API wrapper remains available at
+[http://localhost:3000/api/flickr](http://localhost:3000/api/flickr), and Vite
+proxies browser `/api` requests to it during local development.
 
 The application can also run directly from the `app` directory after its
 dependencies are installed:
@@ -95,12 +100,12 @@ yarn dev
 Available commands:
 
 ```text
-yarn dev         Start Vite and the Express middleware
+yarn dev         Start Vite and the local API wrapper
 yarn dev:vite    Start only the Vite development server
-yarn dev:api     Start only the Express middleware
+yarn dev:api     Start only the local API wrapper
 yarn build       Create the production frontend bundle
 yarn preview     Preview the production frontend bundle
-yarn start       Start only the Express middleware
+yarn start       Start only the local API wrapper
 yarn test:unit   Run Vitest unit tests
 yarn test:e2e    Run Cypress end-to-end tests
 ```
@@ -120,13 +125,14 @@ docker compose logs --no-color --tail 160 app
 ```
 
 Cypress uses deterministic fixtures and intercepted Flickr proxy responses for
-repeatable regression coverage.
+repeatable regression coverage. Unit tests cover the shared proxy behavior used
+by the Netlify Function and the local API wrapper without calling live Flickr.
 
 ---
 
 ## ⚙️ Configuration
 
-The API proxy requires a Flickr API key:
+The API proxy requires a Flickr API key in the server-side runtime environment:
 
 ```text
 API_KEY=your_flickr_api_key
@@ -139,19 +145,33 @@ ALLOWED_ORIGINS=https://your-frontend.example
 VITE_API_BASE_URL=https://your-api.example/api
 ```
 
-`ALLOWED_ORIGINS` configures the middleware CORS allowlist.
-`VITE_API_BASE_URL` overrides the frontend API endpoint at build time.
+`ALLOWED_ORIGINS` configures the local API wrapper CORS allowlist.
+`VITE_API_BASE_URL` overrides the frontend API endpoint at build time and should
+only be used for rollback or alternate environments. Do not put `API_KEY` or any
+Flickr secret in `VITE_*` variables because Vite exposes those values to the
+browser bundle.
+
+For Netlify production, configure `API_KEY` in the Netlify site environment.
+The Netlify Function uses ordinary request-triggered Functions, redirects,
+headers, and environment variables only. It does not require paid Netlify
+features, paid add-ons, databases, blob storage, AI features, background jobs,
+scheduled jobs, custom deployment options, or auto-recharge. Keep auto-recharge
+disabled for zero-cost operation; unusually high traffic can exhaust the free
+monthly usage credits and pause service instead of billing automatically.
 
 ---
 
 ## 🌐 Production
 
 Netlify builds the frontend from the `app` directory and publishes the generated
-`dist` directory. The SPA redirect and response security headers are defined in
-`app/netlify.toml`.
+`dist` directory. The Flickr proxy function, SPA redirect, proxy redirect, and
+response security headers are defined in `app/netlify.toml`.
 
-The Express middleware must be deployed separately with `API_KEY` and the
-production `ALLOWED_ORIGINS` value configured by the hosting provider.
+The Express-based wrapper is local-only. Production no longer requires Render or
+any separate Node host for the Flickr proxy. Before decommissioning an existing
+Render deployment, keep `VITE_API_BASE_URL` available as a temporary rollback
+override and redeploy Netlify with that value only if the Netlify Function path
+fails production validation.
 
 ---
 
