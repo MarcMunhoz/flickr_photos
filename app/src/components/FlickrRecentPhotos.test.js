@@ -6,6 +6,7 @@ import FlickrRecentPhotos from "./FlickrRecentPhotos.vue";
 const { recentState } = vi.hoisted(() => ({
   recentState: {
     allPhotos: null,
+    hasMore: null,
     removePhoto: vi.fn(),
     loadNextPage: vi.fn(),
     cancelLoading: vi.fn(),
@@ -16,7 +17,7 @@ vi.mock("@/composables/useRecentPhotos.js", () => ({
   useRecentPhotos: () => ({
     allPhotos: recentState.allPhotos,
     error: ref(""),
-    hasMore: computed(() => false),
+    hasMore: recentState.hasMore,
     isLoading: ref(false),
     loadNextPage: recentState.loadNextPage,
     removePhoto: recentState.removePhoto,
@@ -26,6 +27,7 @@ vi.mock("@/composables/useRecentPhotos.js", () => ({
 
 describe("FlickrRecentPhotos", () => {
   beforeEach(() => {
+    recentState.hasMore = ref(false);
     recentState.allPhotos = ref([
       {
         id: "photo-1",
@@ -59,7 +61,8 @@ describe("FlickrRecentPhotos", () => {
     expect(recentState.removePhoto).not.toHaveBeenCalled();
   });
 
-  it("shows an unavailable media state after all image candidates fail", async () => {
+  it("removes exhausted recent photo media and requests another page when available", async () => {
+    recentState.hasMore.value = true;
     const wrapper = mount(FlickrRecentPhotos, {
       global: {
         stubs: {
@@ -67,13 +70,13 @@ describe("FlickrRecentPhotos", () => {
         },
       },
     });
+    recentState.loadNextPage.mockClear();
 
     await wrapper.get("img.gallery-image").trigger("error");
     await wrapper.get("img.gallery-image").trigger("error");
 
-    expect(wrapper.find("img.gallery-image").exists()).toBe(false);
-    expect(wrapper.get(".photo-placeholder").text()).toBe("Image unavailable");
-    expect(recentState.removePhoto).not.toHaveBeenCalled();
+    expect(recentState.removePhoto).toHaveBeenCalledWith("photo-1");
+    expect(recentState.loadNextPage).toHaveBeenCalledTimes(1);
   });
 
   it("opens the modal with the resolved fallback display image", async () => {

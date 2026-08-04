@@ -127,10 +127,12 @@
         >
           <FlickrPhotoImage
             :alt="photo.title || 'Recent Flickr photo'"
+            :candidate-timeout-ms="1200"
             :candidates="photo.imageCandidates"
             :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `"
             image-class="border-4 border-unicorn gallery-image"
             @resolved="(src) => setResolvedImageUrl(photo.id, src)"
+            @unavailable="handleUnavailablePhoto(photo.id)"
           />
         </a>
       </div>
@@ -196,6 +198,7 @@ export default defineComponent({
       isLoading,
       loadNextPage,
       cancelLoading,
+      removePhoto,
     } = useRecentPhotos();
     const {
       filters,
@@ -281,6 +284,14 @@ export default defineComponent({
       };
     };
 
+    const handleUnavailablePhoto = (photoId) => {
+      removePhoto(photoId);
+
+      if (hasMore.value && !isLoading.value) {
+        loadNextPage();
+      }
+    };
+
     // The composable guards against concurrent calls, so repeated scroll events are safe.
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
@@ -328,6 +339,7 @@ export default defineComponent({
       currentPhotoOwner,
       getResolvedImageUrl,
       setResolvedImageUrl,
+      handleUnavailablePhoto,
       openModal,
       closeModal,
       getGridStyles,

@@ -1,6 +1,6 @@
 export const FLICKR_IMAGE_EXTRAS = ["url_s", "url_m", "url_n", "url_z", "url_c", "url_o"];
 
-const IMAGE_URL_FIELDS = ["url_z", "url_c", "url_n", "url_m", "url_s", "url_o"];
+const IMAGE_URL_FIELDS = ["url_n", "url_m", "url_s", "url_z", "url_c", "url_o"];
 
 /**
  * Lists available display URLs in preferred fallback order.

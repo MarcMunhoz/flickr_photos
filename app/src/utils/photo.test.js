@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { getPhotoImageCandidates, getPhotoImageUrl, normalizePhoto } from "./photo.js";
 
 describe("photo utilities", () => {
-  it("prefers the medium Flickr image URL", () => {
-    expect(getPhotoImageUrl({ url_z: "medium.jpg", url_o: "original.jpg" })).toBe("medium.jpg");
+  it("prefers the lightweight Flickr image URL", () => {
+    expect(getPhotoImageUrl({ url_n: "small-320.jpg", url_z: "medium.jpg", url_o: "original.jpg" })).toBe("small-320.jpg");
   });
 
-  it("orders Flickr image candidates from preferred display size to original fallback", () => {
+  it("orders Flickr image candidates from lightweight display size to original fallback", () => {
     expect(
       getPhotoImageCandidates({
         url_o: "original.jpg",
@@ -16,14 +16,7 @@ describe("photo utilities", () => {
         url_c: "medium-800.jpg",
         url_z: "medium-640.jpg",
       })
-    ).toEqual([
-      "medium-640.jpg",
-      "medium-800.jpg",
-      "small-320.jpg",
-      "small-240.jpg",
-      "small-square.jpg",
-      "original.jpg",
-    ]);
+    ).toEqual(["small-320.jpg", "small-240.jpg", "small-square.jpg", "medium-640.jpg", "medium-800.jpg", "original.jpg"]);
   });
 
   it("skips missing and duplicate Flickr image candidates", () => {
@@ -34,7 +27,7 @@ describe("photo utilities", () => {
         url_n: "small-320.jpg",
         url_m: "shared.jpg",
       })
-    ).toEqual(["shared.jpg", "small-320.jpg"]);
+    ).toEqual(["small-320.jpg", "shared.jpg"]);
   });
 
   it("falls back to the original image URL", () => {

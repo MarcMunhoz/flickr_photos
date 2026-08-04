@@ -1,6 +1,21 @@
-# 📸 Flickr Photos - Public Gallery Viewer
+# Flickr Photos - Public Gallery Viewer
 
-[![Version](https://img.shields.io/badge/version-1.3.1-0462dc)](https://github.com/MarcMunhoz/flickr_photos)
+## Project Status
+
+This project is archived.
+
+It depended on Flickr metadata and media delivery behaving consistently enough
+to present public galleries and recent photo streams in real time. The Flickr
+API can still return valid metadata, but recent media URLs served by
+`live.staticflickr.com` have become unreliable enough to leave the product with
+delayed, missing, or stale visual results. Further client-side fallback logic
+would not provide a production-quality gallery experience.
+
+The repository remains available as a reference implementation for a Vue 3
+frontend, a same-origin Netlify Function API proxy, and the OpenSpec records
+behind the decision to discontinue it.
+
+[![Version](https://img.shields.io/badge/version-1.4.0-0462dc)](https://github.com/MarcMunhoz/flickr_photos)
 [![Vue](https://img.shields.io/badge/Vue-3-42b883?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)](https://vite.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
