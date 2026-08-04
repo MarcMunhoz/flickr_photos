@@ -56,12 +56,17 @@
           Click on photo to open original
         </p>
       </div>
-      <ul class="d-flex flex-row flex-wrap align-items-end justify-content-center gap-1">
-        <li v-for="photo in photos" :key="photo.id">
+      <ul class="user-gallery-grid">
+        <li v-for="photo in photos" :key="photo.id" class="user-gallery-item">
           <h3 v-if="photo.title" class="mb-2 text-ellipsis">{{ photo.title }}</h3>
           <h3 v-else class="mb-2 fs-4 text-decoration-line-through text-muted">Untitled</h3>
-          <a :href="photo.url_o || photo.imageUrl" target="_blank" rel="noopener noreferrer">
-            <img :src="photo.imageUrl" :title="photo.title" :alt="photo.title || 'Flickr photo'" loading="lazy" class="border-4 border-unicorn mw-100" />
+          <a :href="photo.url_o || photo.imageUrl" target="_blank" rel="noopener noreferrer" class="gallery-photo-link">
+            <FlickrPhotoImage
+              :alt="photo.title || 'Flickr photo'"
+              :candidates="photo.imageCandidates"
+              :title="photo.title"
+              image-class="border-4 border-unicorn gallery-photo-image mw-100"
+            />
           </a>
           <cite v-if="photo.tags" class="d-block px-2 simple-font fst-normal text-ellipsis"><span class="fw-bold">Tags:</span> {{ photo.tags }}</cite>
           <cite class="d-block px-2 simple-font fst-normal"><span class="fw-bold">Date</span>: {{ theDate(photo.datetaken) }}</cite>
@@ -75,11 +80,15 @@
 
 <script>
 import { defineComponent, onUnmounted } from "vue";
+import FlickrPhotoImage from "@/components/FlickrPhotoImage.vue";
 import { useUserGallery } from "@/composables/useUserGallery.js";
 import { formatPhotoDate } from "@/utils/date.js";
 
 export default defineComponent({
   name: "FlickrPhotos",
+  components: {
+    FlickrPhotoImage,
+  },
   setup() {
     const gallery = useUserGallery();
 
@@ -240,25 +249,46 @@ h3 {
   line-height: 1.5;
 }
 
-ul {
+.user-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 3rem 3.5rem;
   list-style-type: none;
   margin: 0;
   padding: 0;
+  width: min(1120px, 100%);
+}
 
-  li {
-    display: inline-block;
-    min-height: 436px;
-    width: 473px;
-  }
+.user-gallery-item {
+  min-width: 0;
+}
 
-  @media @sm-screens {
-    width: 100%;
+.gallery-photo-link {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #f4f6f8;
+  text-decoration: none;
+}
 
-    li {
-      min-height: unset;
-      width: 100%;
-    }
-  }
+.gallery-photo-link :deep(.photo-frame) {
+  min-height: 100%;
+}
+
+.gallery-photo-link :deep(.photo-placeholder) {
+  min-height: 100%;
+}
+
+.gallery-photo-link :deep(.gallery-photo-image) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.gallery-photo-link:hover :deep(.gallery-photo-image) {
+  border-style: solid;
+  transform: scale(1.04);
 }
 
 .simple-font {
@@ -275,18 +305,6 @@ ul {
   &.is-empty {
     min-height: calc(100vh - 68px);
     align-content: center;
-  }
-
-  img {
-    height: 305px;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-    width: 100%;
-
-    &:hover {
-      border-style: solid;
-      transform: scale(1.1);
-    }
   }
 
   .spinner-border {
@@ -325,6 +343,12 @@ ul {
 
     &.w-75 {
       width: 100% !important;
+    }
+
+    .user-gallery-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding: 0 0.75rem;
     }
   }
 }

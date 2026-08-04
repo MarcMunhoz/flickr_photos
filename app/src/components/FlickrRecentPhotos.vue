@@ -120,12 +120,18 @@
     <div v-if="filteredPhotos.length > 0" class="gallery-container">
       <div v-for="(photo, index) in filteredPhotos" :key="photo.id" class="gallery-item" :style="getGridStyles(index)">
         <a
-          :href="photo.url_o || photo.imageUrl"
+          :href="getResolvedImageUrl(photo) || '#'"
           target="_blank"
           rel="noopener noreferrer"
-          @click="openModal($event, photo.url_o || photo.imageUrl, photo.title, photo.ownername)"
+          @click="openModal($event, getResolvedImageUrl(photo), photo.title, photo.ownername)"
         >
-          <img :src="photo.imageUrl" :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `" :alt="photo.title || 'Recent Flickr photo'" loading="lazy" class="border-4 border-unicorn gallery-image" @error="handleImageError(photo.id)" />
+          <FlickrPhotoImage
+            :alt="photo.title || 'Recent Flickr photo'"
+            :candidates="photo.imageCandidates"
+            :title="`${photo.title ? photo.title : ''} by ${photo.ownername} `"
+            image-class="border-4 border-unicorn gallery-image"
+            @resolved="(src) => setResolvedImageUrl(photo.id, src)"
+          />
         </a>
       </div>
     </div>
@@ -173,11 +179,15 @@
 
 <script>
 import { defineComponent, ref, onMounted, onUnmounted, watch } from "vue";
+import FlickrPhotoImage from "@/components/FlickrPhotoImage.vue";
 import { usePhotoFilters } from "@/composables/usePhotoFilters.js";
 import { useRecentPhotos } from "@/composables/useRecentPhotos.js";
 
 export default defineComponent({
   name: "RecentPhotos",
+  components: {
+    FlickrPhotoImage,
+  },
   setup() {
     const {
       allPhotos,
@@ -185,7 +195,6 @@ export default defineComponent({
       hasMore,
       isLoading,
       loadNextPage,
-      removePhoto,
       cancelLoading,
     } = useRecentPhotos();
     const {
@@ -200,6 +209,7 @@ export default defineComponent({
     // View-only state remains local; data fetching and filtering live in composables.
     const showFilters = ref(false);
     const showBackToTop = ref(false);
+    const activeImageUrls = ref({});
 
     const dateRange = ref(null);
 
@@ -214,6 +224,19 @@ export default defineComponent({
       filters.value.dateFrom = dateFrom || null;
       filters.value.dateTo = dateTo || null;
     });
+
+    watch(
+      allPhotos,
+      (photos) => {
+        const nextActiveImageUrls = {};
+        photos.forEach((photo) => {
+          nextActiveImageUrls[photo.id] = activeImageUrls.value[photo.id] || "";
+        });
+
+        activeImageUrls.value = nextActiveImageUrls;
+      },
+      { immediate: true }
+    );
 
     const clearFilters = () => {
       dateRange.value = null;
@@ -249,8 +272,13 @@ export default defineComponent({
       return spans[index % spans.length];
     };
 
-    const handleImageError = (photoId) => {
-      removePhoto(photoId);
+    const getResolvedImageUrl = (photo) => activeImageUrls.value[photo.id] || "";
+
+    const setResolvedImageUrl = (photoId, src) => {
+      activeImageUrls.value = {
+        ...activeImageUrls.value,
+        [photoId]: src,
+      };
     };
 
     // The composable guards against concurrent calls, so repeated scroll events are safe.
@@ -298,13 +326,14 @@ export default defineComponent({
       currentPhoto,
       currentPhotoTitle,
       currentPhotoOwner,
+      getResolvedImageUrl,
+      setResolvedImageUrl,
       openModal,
       closeModal,
       getGridStyles,
       error,
       hasMore,
       isLoading,
-      handleImageError,
       loadNextPage,
       scrollToTop,
     };
@@ -620,13 +649,13 @@ export default defineComponent({
   overflow: hidden;
 }
 
-.gallery-image {
+.gallery-container :deep(.gallery-image) {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.gallery-image:hover {
+.gallery-container :deep(.gallery-image:hover) {
   border-style: solid;
 }
 

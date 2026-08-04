@@ -7,6 +7,10 @@ describe("recent public photos", () => {
     cy.visit("/recent-photos");
     cy.wait("@getRecent");
     cy.get(".gallery-item").should("have.length", 3);
+    cy.get(".gallery-item").first().find("img").should("have.attr", "src", "/favicon.ico");
+    cy.get(".gallery-item").first().find("a").click();
+    cy.get(".modal-image").should("have.attr", "src", "/favicon.ico");
+    cy.get(".modal-close-btn").click();
 
     cy.contains("Safe Only").click();
     cy.get(".gallery-item").should("have.length", 2);

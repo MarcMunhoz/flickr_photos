@@ -9,7 +9,11 @@
       {
         "id": "gallery-1",
         "title": "Blue bridge",
+        "url_s": "/favicon.ico",
+        "url_m": "/favicon.ico",
+        "url_n": "/favicon.ico",
         "url_z": "/favicon.ico",
+        "url_c": "/favicon.ico",
         "url_o": "/favicon.ico",
         "datetaken": "2026-07-10 08:00:00",
         "ownername": "Alice",
@@ -18,7 +22,11 @@
       {
         "id": "gallery-2",
         "title": "Evening skyline",
+        "url_s": "/favicon.ico",
+        "url_m": "/favicon.ico",
+        "url_n": "/favicon.ico",
         "url_z": "/favicon.ico",
+        "url_c": "/favicon.ico",
         "datetaken": "2026-07-11 19:30:00",
         "ownername": "Alice",
         "tags": "skyline night"

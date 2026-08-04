@@ -34,4 +34,68 @@ describe("public user gallery", () => {
     cy.wait("@findByUsername");
     cy.contains("User not found").should("be.visible");
   });
+
+  it("clears the previous gallery while a new username search is loading", () => {
+    cy.intercept(
+      {
+        method: "GET",
+        url: "**/api/flickr*",
+        query: {
+          method: "flickr.people.findByUsername",
+          username: "alice",
+        },
+      },
+      {
+        statusCode: 200,
+        body: {
+          stat: "ok",
+          user: { id: "alice-user-id" },
+        },
+      }
+    ).as("findAlice");
+    cy.fixture("user-gallery").then((gallery) => {
+      cy.intercept(
+        {
+          method: "GET",
+          url: "**/api/flickr*",
+          query: {
+            method: "flickr.people.getPublicPhotos",
+            user_id: "alice-user-id",
+          },
+        },
+        {
+          statusCode: 200,
+          body: gallery,
+        }
+      ).as("getAlicePhotos");
+    });
+    cy.intercept(
+      {
+        method: "GET",
+        url: "**/api/flickr*",
+        query: {
+          method: "flickr.people.findByUsername",
+          username: "ubuntu",
+        },
+      },
+      {
+        delay: 1000,
+        statusCode: 200,
+        body: {
+          stat: "ok",
+          user: { id: "ubuntu-user-id" },
+        },
+      }
+    ).as("findUbuntu");
+
+    cy.visit("/");
+    cy.get("input[placeholder='Flickr user name']").type("alice{enter}");
+    cy.wait("@findAlice");
+    cy.wait("@getAlicePhotos");
+    cy.contains("Blue bridge").should("be.visible");
+
+    cy.get("input[placeholder='Flickr user name']").type("ubuntu{enter}");
+    cy.contains("Loading... Please wait.").should("be.visible");
+    cy.contains("Blue bridge").should("not.exist");
+  });
 });
