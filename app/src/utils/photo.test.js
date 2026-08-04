@@ -1,9 +1,40 @@
 import { describe, expect, it } from "vitest";
-import { getPhotoImageUrl, normalizePhoto } from "./photo.js";
+import { getPhotoImageCandidates, getPhotoImageUrl, normalizePhoto } from "./photo.js";
 
 describe("photo utilities", () => {
   it("prefers the medium Flickr image URL", () => {
     expect(getPhotoImageUrl({ url_z: "medium.jpg", url_o: "original.jpg" })).toBe("medium.jpg");
+  });
+
+  it("orders Flickr image candidates from preferred display size to original fallback", () => {
+    expect(
+      getPhotoImageCandidates({
+        url_o: "original.jpg",
+        url_s: "small-square.jpg",
+        url_m: "small-240.jpg",
+        url_n: "small-320.jpg",
+        url_c: "medium-800.jpg",
+        url_z: "medium-640.jpg",
+      })
+    ).toEqual([
+      "medium-640.jpg",
+      "medium-800.jpg",
+      "small-320.jpg",
+      "small-240.jpg",
+      "small-square.jpg",
+      "original.jpg",
+    ]);
+  });
+
+  it("skips missing and duplicate Flickr image candidates", () => {
+    expect(
+      getPhotoImageCandidates({
+        url_z: "shared.jpg",
+        url_c: "",
+        url_n: "small-320.jpg",
+        url_m: "shared.jpg",
+      })
+    ).toEqual(["shared.jpg", "small-320.jpg"]);
   });
 
   it("falls back to the original image URL", () => {
@@ -22,6 +53,7 @@ describe("photo utilities", () => {
       title: "Bridge",
       url_o: "bridge.jpg",
       tags: "city night",
+      imageCandidates: ["bridge.jpg"],
       imageUrl: "bridge.jpg",
     });
   });

@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { fetchFlickr, FlickrApiError } from "@/api/flickrApi.js";
-import { normalizePhoto } from "@/utils/photo.js";
+import { FLICKR_IMAGE_EXTRAS, normalizePhoto } from "@/utils/photo.js";
 
 // Module-level state lets the navbar search form and Home gallery share one source of truth.
 const photos = ref([]);
@@ -36,7 +36,7 @@ async function fetchGalleryPage(page, signal) {
   const data = await fetchFlickr(
     {
       method: "flickr.people.getPublicPhotos",
-      extras: ["url_z", "url_o", "tags", "date_taken", "owner_name"],
+      extras: [...FLICKR_IMAGE_EXTRAS, "tags", "date_taken", "owner_name"],
       page,
       per_page: 12,
       user_id: userId.value,
@@ -76,6 +76,11 @@ async function searchUserGallery(username) {
   isLoading.value = true;
   hasSearched.value = true;
   error.value = "";
+  photos.value = [];
+  ownerName.value = "";
+  currentPage.value = 1;
+  totalPages.value = 1;
+  userId.value = "";
 
   try {
     const userData = await fetchFlickr(

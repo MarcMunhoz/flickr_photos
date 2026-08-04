@@ -34,7 +34,7 @@ RUN apt-get update \
     libnss3 \
     libxss1 \
     xvfb \
-  && CYPRESS_INSTALL_BINARY=15.18.1 yarn cypress install \
+  && CYPRESS_INSTALL_BINARY=15.19.0 yarn cypress install \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/man
 CMD ["yarn", "test:e2e"]
 

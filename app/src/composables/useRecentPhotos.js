@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { fetchFlickr, FlickrApiError } from "@/api/flickrApi.js";
-import { normalizePhoto } from "@/utils/photo.js";
+import { FLICKR_IMAGE_EXTRAS, normalizePhoto } from "@/utils/photo.js";
 
 /**
  * Owns incremental loading for Flickr's recent public photo stream.
@@ -34,7 +34,7 @@ export function useRecentPhotos() {
       const data = await fetchFlickr(
         {
           method: "flickr.photos.getRecent",
-          extras: ["url_z", "url_o", "date_taken", "owner_name", "tags", "safety_level"],
+          extras: [...FLICKR_IMAGE_EXTRAS, "date_taken", "owner_name", "tags", "safety_level"],
           per_page: 35,
           page: nextPage,
         },

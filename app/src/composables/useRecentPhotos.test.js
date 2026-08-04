@@ -37,13 +37,20 @@ describe("useRecentPhotos", () => {
     expect(fetchFlickrMock).toHaveBeenCalledWith(
       expect.objectContaining({
         method: "flickr.photos.getRecent",
+        extras: ["url_s", "url_m", "url_n", "url_z", "url_c", "url_o", "date_taken", "owner_name", "tags", "safety_level"],
         page: 1,
         per_page: 35,
       }),
       { signal: expect.any(AbortSignal) }
     );
     expect(recent.allPhotos.value).toEqual([
-      { id: "1", title: "Visible", url_z: "visible.jpg", imageUrl: "visible.jpg" },
+      {
+        id: "1",
+        title: "Visible",
+        url_z: "visible.jpg",
+        imageCandidates: ["visible.jpg"],
+        imageUrl: "visible.jpg",
+      },
     ]);
     expect(recent.hasMore.value).toBe(true);
     expect(recent.isLoading.value).toBe(false);
