@@ -11,7 +11,7 @@ The project has open Dependabot alerts in the GitHub repository and several dire
 - Existing scripts include `dev`, `build`, `preview`, `start`, `test:unit`, and `test:e2e`.
 - Existing automated validation includes Vitest unit tests under `app/src/**/*.test.js` and Cypress specs under `app/cypress/e2e/*.cy.js`.
 - GitHub remote is `MarcMunhoz/flickr_photos`.
-- Open Dependabot alerts were available through the GitHub API for `app/yarn.lock`: `brace-expansion` high severity patched in `1.1.16`, `body-parser` low severity patched in `1.20.6`, `js-yaml` high and medium severity patched in `3.15.0`, and `shell-quote` high severity patched in `1.9.0`.
+- Open Dependabot alerts were available through the GitHub API for `app/yarn.lock`: `brace-expansion` high severity patched in `1.1.16`, `body-parser` low severity patched in `1.20.6`, `js-yaml` high and medium severity patched in `3.15.0`, `shell-quote` high severity patched in `1.9.0`, `postcss` high severity patched in `8.5.18`, and `undici` high/medium severity patched in `7.29.0`.
 - `yarn outdated --json` executed inside the Docker Compose app service shows available updates for packages including `@vitejs/plugin-vue`, `@vue/compiler-dom`, `@vuepic/vue-datepicker`, `concurrently`, `css-select`, `cypress`, `dotenv`, `esbuild`, `eslint`, `eslint-plugin-vue`, `express`, `flatted`, `jsdom`, `less`, `less-loader`, `prettier`, `vite`, `vue`, and `vue-router`.
 
 ## What Changes
@@ -52,10 +52,12 @@ The project has open Dependabot alerts in the GitHub repository and several dire
 ## Security References
 
 - GitHub repository: `MarcMunhoz/flickr_photos`.
-- Open Dependabot alerts consulted through GitHub API on 2026-07-30:
+- Open Dependabot alerts consulted through GitHub API on 2026-07-30 and refreshed on 2026-08-04:
   - `GHSA-3jxr-9vmj-r5cp` / `CVE-2026-13149`: `brace-expansion` `< 1.1.16`, high severity, patched in `1.1.16`.
   - `GHSA-v422-hmwv-36x6` / `CVE-2026-12590`: `body-parser` `< 1.20.6`, low severity, patched in `1.20.6`.
   - `GHSA-52cp-r559-cp3m` / `CVE-2026-59869`: `js-yaml` `>= 3.0.0, < 3.15.0`, high severity, patched in `3.15.0`.
   - `GHSA-395f-4hp3-45gv` / `CVE-2026-13311`: `shell-quote` `<= 1.8.4`, high severity, patched in `1.9.0`.
   - `GHSA-h67p-54hq-rp68` / `CVE-2026-53632`: `js-yaml` `< 3.15.0`, medium severity, patched in `3.15.0`.
+  - Open alerts 94-98: `undici` `>= 7.0.0, < 7.29.0`, high/medium severity, patched in `7.29.0`.
+  - Open alert 92: `postcss` `<= 8.5.17`, high severity, patched in `8.5.18`.
 - Local dependency drift was checked with `docker compose run --rm --entrypoint yarn app outdated --json`.

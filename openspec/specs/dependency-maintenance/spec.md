@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Define the required dependency maintenance process for this repository, including environment assessment, vulnerability remediation, dependency updates, validation, and outcome documentation.
+
+## Requirements
 
 ### Requirement: Project environment assessment
 
@@ -95,6 +99,7 @@ A implementação SHALL analisar e tratar os alertas abertos do Dependabot para 
 
 - **WHEN** a implementação tratar os alertas abertos consultados em 2026-07-30
 - **THEN** ela SHALL abordar `brace-expansion` `< 1.1.16`, `body-parser` `< 1.20.6`, `js-yaml` `< 3.15.0`, e `shell-quote` `<= 1.8.4`
+- **AND** se os alertas forem reconsultados em 2026-08-04, ela SHALL abordar também `postcss` `<= 8.5.17` e `undici` `>= 7.0.0, < 7.29.0`
 - **AND** cada alerta SHALL ser marcado como corrigido, não aplicável ou residual com justificativa
 
 #### Scenario: Dependabot alert cannot be resolved
