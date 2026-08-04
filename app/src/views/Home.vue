@@ -1,16 +1,16 @@
 <template>
   <div class="home">
-    <flickrPhotos />
+    <ArchiveNotice />
   </div>
 </template>
 
 <script>
-import FlickrPhotos from "@/components/FlickrPhotos.vue";
+import ArchiveNotice from "@/components/ArchiveNotice.vue";
 
 export default {
   name: "Home",
   components: {
-    FlickrPhotos,
+    ArchiveNotice,
   },
 };
 </script>

@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
 
 export default defineComponent({
   name: "FlickrPhotoImage",
@@ -34,16 +34,21 @@ export default defineComponent({
       type: [String, Array, Object],
       default: "",
     },
+    candidateTimeoutMs: {
+      type: Number,
+      default: 8000,
+    },
     title: {
       type: String,
       default: "",
     },
   },
-  emits: ["resolved"],
+  emits: ["resolved", "unavailable"],
   setup(props, { emit }) {
     const activeIndex = ref(0);
     const isLoaded = ref(false);
     const isUnavailable = ref(false);
+    let candidateTimer = null;
 
     const cleanCandidates = computed(() =>
       props.candidates.filter((candidate, index, candidates) => candidate && candidates.indexOf(candidate) === index)
@@ -52,23 +57,15 @@ export default defineComponent({
     const placeholderText = computed(() => (isUnavailable.value ? "Image unavailable" : props.alt));
     const showPlaceholder = computed(() => !isLoaded.value || isUnavailable.value);
 
-    watch(
-      cleanCandidates,
-      () => {
-        activeIndex.value = 0;
-        isLoaded.value = false;
-        isUnavailable.value = cleanCandidates.value.length === 0;
-      },
-      { immediate: true }
-    );
-
-    const handleLoad = () => {
-      isLoaded.value = true;
-      isUnavailable.value = false;
-      emit("resolved", activeSrc.value);
+    const clearCandidateTimer = () => {
+      if (candidateTimer) {
+        clearTimeout(candidateTimer);
+        candidateTimer = null;
+      }
     };
 
-    const handleError = () => {
+    const advanceCandidate = () => {
+      clearCandidateTimer();
       isLoaded.value = false;
 
       if (activeIndex.value < cleanCandidates.value.length - 1) {
@@ -77,7 +74,52 @@ export default defineComponent({
       }
 
       isUnavailable.value = true;
+      emit("unavailable");
     };
+
+    const scheduleCandidateTimer = () => {
+      clearCandidateTimer();
+
+      if (!activeSrc.value || isLoaded.value || isUnavailable.value || props.candidateTimeoutMs <= 0) {
+        return;
+      }
+
+      candidateTimer = setTimeout(() => {
+        advanceCandidate();
+      }, props.candidateTimeoutMs);
+    };
+
+    watch(
+      cleanCandidates,
+      () => {
+        activeIndex.value = 0;
+        isLoaded.value = false;
+        isUnavailable.value = cleanCandidates.value.length === 0;
+        scheduleCandidateTimer();
+      },
+      { immediate: true }
+    );
+
+    watch(activeSrc, () => {
+      isLoaded.value = false;
+      isUnavailable.value = !activeSrc.value;
+      scheduleCandidateTimer();
+    });
+
+    const handleLoad = () => {
+      clearCandidateTimer();
+      isLoaded.value = true;
+      isUnavailable.value = false;
+      emit("resolved", activeSrc.value);
+    };
+
+    const handleError = () => {
+      advanceCandidate();
+    };
+
+    onUnmounted(() => {
+      clearCandidateTimer();
+    });
 
     return {
       activeSrc,
