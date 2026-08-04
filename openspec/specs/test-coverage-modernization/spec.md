@@ -17,7 +17,7 @@ The project SHALL include unit tests for critical frontend and middleware-adjace
 
 #### Scenario: Utility logic is tested
 - **WHEN** photo or date utility behavior is changed or validated
-- **THEN** unit tests MUST cover formatting, filtering, normalization, and edge cases represented in the existing utility modules
+- **THEN** unit tests MUST cover formatting, filtering, normalization, image URL candidate ordering, display URL fallback selection, and edge cases represented in the existing utility modules
 
 #### Scenario: API client behavior is tested
 - **WHEN** Flickr proxy client behavior is validated
@@ -25,7 +25,7 @@ The project SHALL include unit tests for critical frontend and middleware-adjace
 
 #### Scenario: Composable behavior is tested
 - **WHEN** photo-loading composables are validated
-- **THEN** unit tests MUST cover loading, success, error, empty-state, and stale request behavior where the composable implements it
+- **THEN** unit tests MUST cover loading, success, error, empty-state, stale request behavior, stale gallery clearing, and requested Flickr image URL extras where the composable implements them
 
 ### Requirement: Cypress E2E coverage
 The project SHALL include Cypress tests for the primary user-visible application flows.
@@ -40,7 +40,11 @@ The project SHALL include Cypress tests for the primary user-visible application
 
 #### Scenario: Recent photos flow is tested
 - **WHEN** a user visits recent public photos
-- **THEN** Cypress tests MUST verify initial loading, filter interactions, incremental loading where available, and rendered recent-photo results using deterministic network responses
+- **THEN** Cypress tests MUST verify initial loading, filter interactions, incremental loading where available, rendered recent-photo results, image URL fallback behavior after individual image load failures, and modal preview behavior using deterministic network responses
+
+#### Scenario: Public gallery refresh flow is tested
+- **WHEN** a user starts a new public gallery search while previous user photos are visible
+- **THEN** Cypress tests MUST verify the previous gallery is cleared while the new Flickr request is loading using deterministic network responses
 
 ### Requirement: Deterministic E2E network behavior
 Cypress tests SHALL avoid relying on live Flickr data for repeatable regression coverage.
